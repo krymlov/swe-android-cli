@@ -11,5 +11,5 @@ public class SweTest {
         System.loadLibrary(libraryName);
     }
 
-    public static native int swe_test_main(String jargs, int argc);
+    public static native int swe_test_main(String jargs, int argc, StringBuilder sout);
 }

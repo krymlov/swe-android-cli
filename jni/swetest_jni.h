@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-JNIEXPORT jint JNICALL Java_swisseph_SweTest_swe_1test_1main(JNIEnv *, jclass, jstring, jint);
+JNIEXPORT jint JNICALL Java_swisseph_SweTest_swe_1test_1main(JNIEnv *, jclass, jstring, jint, jobject);
 
 #ifdef __cplusplus
 }

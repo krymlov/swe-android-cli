@@ -53,7 +53,7 @@
         appendToBuilder(env, CHARS, BUILDER);               \
     }
 
-JNIEXPORT jint JNICALL Java_swisseph_SweTest_swe_1test_1main(JNIEnv *env, jclass swetest, jstring jargs, jint jargc) {
+JNIEXPORT jint JNICALL Java_swisseph_SweTest_swe_1test_1main(JNIEnv *env, jclass swetest, jstring jargs, jint jargc, jobject jout) {
 	GET_STRING_UTF_CHARS(isCopy, jargs, cargs)
 	iPRINTF("START: %s", cargs);
 	
@@ -72,7 +72,7 @@ JNIEXPORT jint JNICALL Java_swisseph_SweTest_swe_1test_1main(JNIEnv *env, jclass
 	argv = realloc (argv, sizeof (char*) * (n_spaces+1));
 	argv[n_spaces] = 0;
 	
-	int32 ret = swe_test_main(jargc, argv);
+	int32 ret = swe_test_main(jargc, argv, jout);
 	
 	free (argv);
 	RLZ_STRING_UTF_CHARS(isCopy, jargs, cargs)
