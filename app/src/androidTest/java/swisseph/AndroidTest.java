@@ -21,7 +21,7 @@ public class AndroidTest {
 
     @Test
     public void swe_test_main() {
-        int res = SweTest.swe_test_main("-testaa95 -testaa95", 2);
+        int res = SweTest.swe_test_main("JUnit4 -testaa97", 2);
         System.out.println("swe_test_main - done! => " + res);
     }
 

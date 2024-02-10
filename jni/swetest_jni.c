@@ -54,10 +54,8 @@
     }
 
 JNIEXPORT jint JNICALL Java_swisseph_SweTest_swe_1test_1main(JNIEnv *env, jclass swetest, jstring jargs, jint jargc) {
-	iPRINTF("START swe_test_main()...");
-	
 	GET_STRING_UTF_CHARS(isCopy, jargs, cargs)
-	iPRINTF("swe_test_main(): %s", cargs);
+	iPRINTF("START: %s", cargs);
 	
 	char ** argv  = NULL;
 	CPY_CSTRING_TO_CHARS(cargs, args)
@@ -67,19 +65,19 @@ JNIEXPORT jint JNICALL Java_swisseph_SweTest_swe_1test_1main(JNIEnv *env, jclass
 	while (p) {
 	  argv = realloc (argv, sizeof (char*) * ++n_spaces);
 	  argv[n_spaces - 1] = p;
+	  iPRINTF("%s", p);
 	  p = strtok(NULL, " ");
 	}
 	
 	argv = realloc (argv, sizeof (char*) * (n_spaces+1));
 	argv[n_spaces] = 0;
 	
-	char *arr[] = {"-testaa95", "-testaa95"};
-	int32 ret = swe_test_main(2, arr);
+	int32 ret = swe_test_main(jargc, argv);
 	
-	// free (argv);
-	
+	free (argv);
 	RLZ_STRING_UTF_CHARS(isCopy, jargs, cargs)
-	iPRINTF("END swe_test_main(): %i", ret);
 	
-    return 123456;
+	iPRINTF("END: %i", ret);
+	
+    return ret;
 }
