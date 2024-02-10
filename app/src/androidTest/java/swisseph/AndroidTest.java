@@ -21,7 +21,7 @@ public class AndroidTest {
 
     @Test
     public void swe_test_main() {
-        int res = SweTest.swe_test_main("-b23.11.1933 -ut23:21 -house-70.072,73.148,P -p0", 4);
+        int res = SweTest.swe_test_main("-testaa95 -testaa95", 2);
         System.out.println("swe_test_main - done! => " + res);
     }
 

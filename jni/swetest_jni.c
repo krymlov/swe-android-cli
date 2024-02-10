@@ -73,12 +73,13 @@ JNIEXPORT jint JNICALL Java_swisseph_SweTest_swe_1test_1main(JNIEnv *env, jclass
 	argv = realloc (argv, sizeof (char*) * (n_spaces+1));
 	argv[n_spaces] = 0;
 	
-	int32 ret = swe_test_main(jargc, argv);
+	char *arr[] = {"-testaa95", "-testaa95"};
+	int32 ret = swe_test_main(2, arr);
 	
 	// free (argv);
 	
 	RLZ_STRING_UTF_CHARS(isCopy, jargs, cargs)
 	iPRINTF("END swe_test_main(): %i", ret);
 	
-    return 1234567;
+    return 123456;
 }
