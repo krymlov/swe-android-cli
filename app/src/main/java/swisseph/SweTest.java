@@ -11,6 +11,5 @@ public class SweTest {
         System.loadLibrary(libraryName);
     }
 
-    // JNIEXPORT jint JNICALL Java_swisseph_SweTest_swe_1test_1main(JNIEnv *, jclass, jobjectArray);
-    public static native int swe_test_main(String[] jargv);
+    public static native int swe_test_main(String jargs, int argc);
 }

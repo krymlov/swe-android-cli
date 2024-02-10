@@ -19,14 +19,15 @@ public class AndroidTest {
         System.out.println("AndroidTest - setUp()...");
     }
 
+    @Test
+    public void swe_test_main() {
+        int res = SweTest.swe_test_main("-b23.11.1933 -ut23:21 -house-70.072,73.148,P -p0", 4);
+        System.out.println("swe_test_main - done! => " + res);
+    }
+
+
     @AfterClass
     public static void tearDown() {
         System.out.println("AndroidTest - tearDown()...");
-    }
-
-    @Test
-    public void swe_test_main() {
-        SweTest.swe_test_main(new String[]{"-hcmd"});
-        System.out.println("swe_test_main - done!");
     }
 }
