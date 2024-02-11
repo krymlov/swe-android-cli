@@ -39,15 +39,17 @@ void addToBuilder(JNIEnv *env, char *chArray, jobject builder) {
     (*env)->CallObjectMethod(env, builder, mid, jArray);
 }
 
-char SWE_OUT[1024 * 1024] = "";
+
 char SWE_TMP[1024] = "";
+char SWE_OUT[1024 * 1024] = "";
 
-#define JNI_LOG(...)  __android_log_print(ANDROID_LOG_INFO,"SWE-TEST",__VA_ARGS__)
+#define JNI_LOG(...) __android_log_print(ANDROID_LOG_INFO,"SWE-TEST",__VA_ARGS__)
 
 
-JNIEXPORT jint JNICALL Java_swisseph_SwephExp_swe_1test_1main(JNIEnv *env, jclass swetest, jstring jargs, jint jargc, jobject sout) {
+JNIEXPORT jint JNICALL Java_swisseph_SwephExp_swe_1test_1main(JNIEnv *env, jclass swetest, jstring jargs, jobject sout) {
 	GET_STRING_UTF_CHARS(isCopy, jargs, cargs)
-	JNI_LOG("START: %s", cargs);
+	
+	JNI_LOG("%s", cargs);
 	
 	char ** argv  = NULL;
 	CPY_CSTRING_TO_CHARS(cargs, args)
@@ -55,22 +57,20 @@ JNIEXPORT jint JNICALL Java_swisseph_SwephExp_swe_1test_1main(JNIEnv *env, jclas
 	int n_spaces = 0;
 
 	while (p) {
-	  argv = realloc (argv, sizeof (char*) * ++n_spaces);
+	  argv = realloc(argv, sizeof (char*) * ++n_spaces);
 	  argv[n_spaces - 1] = p;
 	  JNI_LOG("%s", p);
 	  p = strtok(NULL, " ");
 	}
 	
-	argv = realloc (argv, sizeof (char*) * (n_spaces+1));
+	argv = realloc(argv, sizeof (char*) * (n_spaces+1));
 	argv[n_spaces] = 0;
 	
-	int32 ret = swe_test_main(jargc, argv);
+	int32 ret = swe_test_main(n_spaces, argv);
 	
-	free (argv);
+	free(argv);
 	RLZ_STRING_UTF_CHARS(isCopy, jargs, cargs)
 	
-	JNI_LOG("END: %i => %s", ret, SWE_OUT);
 	addToBuilder(env, SWE_OUT, sout);
-	
     return ret;
 }

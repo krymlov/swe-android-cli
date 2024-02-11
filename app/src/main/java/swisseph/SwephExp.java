@@ -20,7 +20,7 @@ public class SwephExp {
         System.loadLibrary(libraryName);
     }
 	
-	public static native int swe_test_main(String jargs, int argc, StringBuilder sout);
+	public static native int swe_test_main(String args, StringBuilder sout);
 
     /***********************************************************
      * exported functions

@@ -1,9 +1,16 @@
 package swisseph;
 
+import static android.os.Environment.DIRECTORY_MOVIES;
+
+import android.Manifest;
+import android.os.Environment;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -14,6 +21,10 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class AndroidSweTest {
 
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule
+            .grant(Manifest.permission.READ_MEDIA_VIDEO);
+
     @BeforeClass
     public static void setUp() {
         System.out.println("setUp()...");
@@ -22,9 +33,13 @@ public class AndroidSweTest {
 
     @Test
     public void swe_test_main() {
+        String epheFolders = Environment.getExternalStoragePublicDirectory
+                (DIRECTORY_MOVIES).getAbsolutePath() + "/ephe";
+
         StringBuilder sout = new StringBuilder();
-        int res = SwephExp.swe_test_main("TEST -testaa97", 2, sout);
-        System.out.println("swe_test_main - done! => " + res + " => " + sout);
+        SwephExp.swe_test_main("TEST -testaa97 -edir" + epheFolders, sout);
+
+        System.out.println(sout);
     }
 
     @AfterClass
