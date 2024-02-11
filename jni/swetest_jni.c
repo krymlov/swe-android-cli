@@ -8,33 +8,6 @@
 #include "swetest_jni.h"
 #include <android/log.h>
 
-#define  LOG_TAG    "SWE-TEST-MAIN"
-#define  iPRINTF(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
-#define  wPRINTF(...)  __android_log_print(ANDROID_LOG_WARN,LOG_TAG,__VA_ARGS__)
-
-#define JNI_RELEASE (ERR >= retc ? JNI_ABORT : JNI_OK)
-
-#define DEFINE_CHAR_SERR char serr[AS_MAXCH];
-#define ERR_BUILDER_APPEND_IF_ERR if (ERR >= retc && NULL != errBuilder) appendToBuilder(env, serr, errBuilder);
-#define ERR_BUILDER_APPEND_IF_SERR if (*serr != '\0' && NULL != errBuilder) appendToBuilder(env, serr, errBuilder);
-
-#define GET_DOUBLE_ARRAY_ELEMENTS(IS_COPY, JDOUBLE_ARRAY, ELEMENTS)\
-    jboolean IS_COPY = JNI_FALSE;                                              \
-    jdouble* ELEMENTS = (NULL != JDOUBLE_ARRAY) ? (*env)->GetDoubleArrayElements(env, JDOUBLE_ARRAY, &IS_COPY) : NULL;
-
-#define RLZ_DOUBLE_ARRAY_ELEMENTS_OK(IS_COPY, JDOUBLE_ARRAY, ELEMENTS)\
-    if (JNI_TRUE == IS_COPY && NULL != JDOUBLE_ARRAY) (*env)->ReleaseDoubleArrayElements(env, JDOUBLE_ARRAY, ELEMENTS, JNI_OK);
-
-#define RLZ_DOUBLE_ARRAY_ELEMENTS(IS_COPY, JDOUBLE_ARRAY, ELEMENTS)\
-    if (JNI_TRUE == IS_COPY && NULL != JDOUBLE_ARRAY) (*env)->ReleaseDoubleArrayElements(env, JDOUBLE_ARRAY, ELEMENTS, JNI_RELEASE);
-
-#define GET_INT_ARRAY_ELEMENTS(IS_COPY, JINT_ARRAY, ELEMENTS) \
-    jboolean IS_COPY = JNI_FALSE;                                         \
-    jint * ELEMENTS = (NULL != JINT_ARRAY) ? (*env)->GetIntArrayElements(env, JINT_ARRAY, &IS_COPY) : NULL;
-
-#define RLZ_INT_ARRAY_ELEMENTS_OK(IS_COPY, JINT_ARRAY, ELEMENTS)\
-    if (JNI_TRUE == IS_COPY && NULL != JINT_ARRAY) (*env)->ReleaseIntArrayElements(env, JINT_ARRAY, ELEMENTS, JNI_OK);
-
 #define GET_STRING_UTF_CHARS(IS_COPY, JSTRING, CCSTRING)\
     jboolean IS_COPY = JNI_FALSE;                                   \
     const char* CCSTRING = (NULL != JSTRING) ? (*env)->GetStringUTFChars(env, JSTRING, &IS_COPY) : NULL;
@@ -47,15 +20,34 @@
     if (NULL == CCSTRING) *CHARS = '\0';         \
     else strcpy(CHARS, CCSTRING);
 
-#define BUILDER_APPEND_IF_DIFF(BUILDER, CCSTRING, CHARS)    \
-    if (NULL != BUILDER && NULL != CCSTRING && 0 != strcmp(CCSTRING, CHARS)) { \
-        emptyBuilder(env, BUILDER);                         \
-        appendToBuilder(env, CHARS, BUILDER);               \
-    }
+void addToBuilder(JNIEnv *env, char *chArray, jobject builder) {
+    if (NULL == builder) return;
 
-JNIEXPORT jint JNICALL Java_swisseph_SweTest_swe_1test_1main(JNIEnv *env, jclass swetest, jstring jargs, jint jargc, jobject jout) {
+    // Obtain the Java StringBuilder class handle
+    jclass clazz = (*env)->GetObjectClass(env, builder);
+
+    // Obtain the method ID for the StringBuilder append method
+    jmethodID mid = (*env)->GetMethodID(env, clazz, "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+
+    // If this method does not exist then return.
+    if (mid == 0) return;
+
+    // Create a new Java String object for the given char Array
+    jstring jArray = (*env)->NewStringUTF(env, chArray);
+
+    // Call the StringBuilder object's append method
+    (*env)->CallObjectMethod(env, builder, mid, jArray);
+}
+
+char SWE_OUT[1024 * 1024] = "";
+char SWE_TMP[1024] = "";
+
+#define JNI_LOG(...)  __android_log_print(ANDROID_LOG_INFO,"SWE-TEST",__VA_ARGS__)
+
+
+JNIEXPORT jint JNICALL Java_swisseph_SweTest_swe_1test_1main(JNIEnv *env, jclass swetest, jstring jargs, jint jargc, jobject sout) {
 	GET_STRING_UTF_CHARS(isCopy, jargs, cargs)
-	iPRINTF("START: %s", cargs);
+	JNI_LOG("START: %s", cargs);
 	
 	char ** argv  = NULL;
 	CPY_CSTRING_TO_CHARS(cargs, args)
@@ -65,19 +57,20 @@ JNIEXPORT jint JNICALL Java_swisseph_SweTest_swe_1test_1main(JNIEnv *env, jclass
 	while (p) {
 	  argv = realloc (argv, sizeof (char*) * ++n_spaces);
 	  argv[n_spaces - 1] = p;
-	  iPRINTF("%s", p);
+	  JNI_LOG("%s", p);
 	  p = strtok(NULL, " ");
 	}
 	
 	argv = realloc (argv, sizeof (char*) * (n_spaces+1));
 	argv[n_spaces] = 0;
 	
-	int32 ret = swe_test_main(jargc, argv, jout);
+	int32 ret = swe_test_main(jargc, argv);
 	
 	free (argv);
 	RLZ_STRING_UTF_CHARS(isCopy, jargs, cargs)
 	
-	iPRINTF("END: %i", ret);
+	JNI_LOG("END: %i => %s", ret, SWE_OUT);
+	addToBuilder(env, SWE_OUT, sout);
 	
     return ret;
 }

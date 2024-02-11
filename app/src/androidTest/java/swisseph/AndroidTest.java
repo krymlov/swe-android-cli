@@ -22,8 +22,8 @@ public class AndroidTest {
     @Test
     public void swe_test_main() {
         StringBuilder sout = new StringBuilder();
-        int res = SweTest.swe_test_main("JUnit4 -testaa97", 2, sout);
-        System.out.println("swe_test_main - done! => " + res);
+        int res = SweTest.swe_test_main("TEST -testaa97", 2, sout);
+        System.out.println("swe_test_main - done! => " + res + " => " + sout);
     }
 
     @AfterClass

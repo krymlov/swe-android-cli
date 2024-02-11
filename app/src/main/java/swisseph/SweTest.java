@@ -1,5 +1,7 @@
 package swisseph;
 
+import java.io.PrintStream;
+
 /**
  * @author Yura Krymlov
  * @version 1.0, 2024-02

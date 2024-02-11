@@ -642,7 +642,8 @@ static char *infoexamp = "\n\
 #include "swephlib.h"
 #include "sweph.h"
 #include <math.h>
-#include <jni.h>
+
+#include "swetest_jni.h"
 
 /*
  * programmers warning: It looks much worse than it is!
@@ -814,7 +815,11 @@ static AS_BOOL show_file_limit = FALSE;
 # define ECL_SOL_ANNULAR        5
 # define ECL_SOL_TOTAL          6
 
-ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
+
+#define JNI_PRINTF(...) {sprintf(SWE_TMP, __VA_ARGS__);strcat(SWE_OUT,SWE_TMP);}
+#define JNI_EXIT(code) return code
+
+int swe_test_main(int argc, char *argv[])
 {
   char sdate_save[AS_MAXCH]; 
   char s1[AS_MAXCH], s2[AS_MAXCH];
@@ -1215,32 +1220,32 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
         sp2 = strstr(si0, "Version:");
 	if (sp2 != NULL && strlen(sp2) > 10 + strlen(sout)) 
 	  strcpy(sp2 + 9, sout);
-        fputs(si0,stdout);
-        fputs(infocmd1,stdout);
-        fputs(infocmd2,stdout);
-        fputs(infocmd3,stdout);
-        fputs(infocmd4,stdout);
-        fputs(infocmd5,stdout);
-        fputs(infocmd6,stdout);
+        do_printf(si0);
+        do_printf(infocmd1);
+        do_printf(infocmd2);
+        do_printf(infocmd3);
+        do_printf(infocmd4);
+        do_printf(infocmd5);
+        do_printf(infocmd6);
       }
       if (*sp == 'p' || *sp == '\0')
-        fputs(infoplan,stdout);
+        do_printf(infoplan);
       if (*sp == 'f' || *sp == '\0') {
-        fputs(infoform,stdout);
-        fputs(infoform2,stdout);
+        do_printf(infoform);
+        do_printf(infoform2);
       }
       if (*sp == 'd' || *sp == '\0')
-        fputs(infodate,stdout);
+        do_printf(infodate);
       if (*sp == 'e' || *sp == '\0')
-        fputs(infoexamp,stdout);
+        do_printf(infoexamp);
       goto end_main;
     } else {
       strcpy(sout, "illegal option ");
       strncat(sout,  argv[i], 100);
       sout[100] = '\0';
       strcat(sout, "\n");
-      fputs(sout,stdout);
-      return 1; //exit(1);
+      do_printf(sout);
+      JNI_EXIT(1);
     }
   }
   if (special_event == SP_OCCULTATION ||
@@ -1285,8 +1290,8 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
 #endif
   if (with_header) {
     for (i = 0; i < argc; i++) {
-      fputs(argv[i],stdout);
-      printf(" ");
+      do_printf(argv[i]);
+      JNI_PRINTF(" ");
     }
   }
   iflag = (iflag & ~SEFLG_EPHMASK) | whicheph;
@@ -1326,7 +1331,7 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
   serr[0] = serr_save[0] = serr_warn[0] = '\0';
   while (TRUE) {
     if (begindate == NULL) {
-      printf("\nDate ?");
+      JNI_PRINTF("\nDate ?");
       sdate[0] = '\0';
       if( !fgets(sdate, AS_MAXCH, stdin) ) goto end_main;
     } else {
@@ -1404,7 +1409,7 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
       tjd += n;
       swe_revjul(tjd, gregflag, &jyear, &jmon, &jday, &jut);
     } else {
-      if (sscanf (sp, "%d%*c%d%*c%d", &jday,&jmon,&jyear) < 1) exit(1);
+      if (sscanf (sp, "%d%*c%d%*c%d", &jday,&jmon,&jyear) < 1) JNI_EXIT(1);
       year_start = jyear;
       mon_start = jmon;
       day_start = jday;
@@ -1427,8 +1432,8 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
 	  sscanf(stimein, "%d:%d:%lf", &ih, &im, &ds);
 	}
         if (swe_utc_to_jd(jyear,jmon,jday, ih, im, ds, gregflag, tret, serr) == ERR) {
-	  printf(" error in swe_utc_to_jd(): %s\n", serr);
-	  return -1; //exit(-1);
+	  JNI_PRINTF(" error in swe_utc_to_jd(): %s\n", serr);
+	  JNI_EXIT(-1);
 	}
 	tjd = tret[1];
       } else {
@@ -1484,38 +1489,40 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
 #ifndef NO_SWE_GLP      // -DNO_SWE_GLP to suppress this function
 	if (with_glp) {
 	  swe_get_library_path(sout);
-	  printf("\npath: %s", sout);
+	  JNI_PRINTF("\npath: %s", sout);
 	}
 #endif
-        printf("\ndate (dmy) %d.%d.%04d", jday, jmon, jyear);
-        if (gregflag)
-          printf(" greg.");
-        else
-          printf(" jul.");
-	jd_to_time_string(jut, stimeout);
-	printf("%s", stimeout);
-        if (universal_time) {
-	  if (time_flag & BIT_TIME_LMT)
-	    printf(" LMT");
-	  else
-	    printf(" UT");
+        JNI_PRINTF("\ndate (dmy) %d.%d.%04d", jday, jmon, jyear);
+        if (gregflag) {
+          JNI_PRINTF(" greg.");
         } else {
-          printf(" TT");
+          JNI_PRINTF(" jul.");
+		}
+	jd_to_time_string(jut, stimeout);
+	JNI_PRINTF("%s", stimeout);
+        if (universal_time) {
+	  if (time_flag & BIT_TIME_LMT) {
+	    JNI_PRINTF(" LMT");
+	  } else {
+	    JNI_PRINTF(" UT");
+	  }
+        } else {
+          JNI_PRINTF(" TT");
 	}
-	printf("\t\tversion %s", swe_version(sout));
+	JNI_PRINTF("\t\tversion %s", swe_version(sout));
       }
       if (universal_time) {
 	// "LMT: 2457908.588194444"
 	if (time_flag & BIT_TIME_LMT) {
 	  if (with_header) {
-	    printf("\nLMT: %.9f", t);
+	    JNI_PRINTF("\nLMT: %.9f", t);
 	    t -= geopos[0] / 15.0 / 24.0;   
 	  }
 	}
 	// "UT:  2457908.565972222     delta t: 68.761612 sec"
         if (with_header) {
-          printf("\nUT:  %.9f", t);
-          printf("     delta t: %f sec", delt * 86400.0);
+          JNI_PRINTF("\nUT:  %.9f", t);
+          JNI_PRINTF("     delta t: %f sec", delt * 86400.0);
         }
         te = t + delt;
         tut = t;
@@ -1524,52 +1531,52 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
         tut = t - delt;
 	// "UT:  2457908.565972222     delta t: 68.761612 sec"
         if (with_header) {
-          printf("\nUT:  %.9f", tut);
-          printf("     delta t: %f sec", delt * 86400.0);
+          JNI_PRINTF("\nUT:  %.9f", tut);
+          JNI_PRINTF("     delta t: %f sec", delt * 86400.0);
         }
       }
       iflgret = swe_calc(te, SE_ECL_NUT, iflag, xobl, serr);
       if (with_header) {
 	// "TT:  2457908.566768074
-        printf("\nTT:  %.9f", te);
+        JNI_PRINTF("\nTT:  %.9f", te);
 	// "ayanamsa =   24° 5'51.6509 (Lahiri)"
 	if (iflag & SEFLG_SIDEREAL) {
 	  if (swe_get_ayanamsa_ex(te, iflag, &daya, serr) == ERR) {
-	    printf("   error in swe_get_ayanamsa_ex(): %s\n", serr);
-	    return 1; //exit(1);
+	    JNI_PRINTF("   error in swe_get_ayanamsa_ex(): %s\n", serr);
+	    JNI_EXIT(1);
 	  }
-	  printf("   ayanamsa = %s (%s)", dms(daya, round_flag), swe_get_ayanamsa_name(sid_mode));
+	  JNI_PRINTF("   ayanamsa = %s (%s)", dms(daya, round_flag), swe_get_ayanamsa_name(sid_mode));
 	}
 	// "geo. long 8.000000, lat 47.000000, alt 0.000000"
 	if (have_geopos) {
-	  printf("\ngeo. long %f, lat %f, alt %f", geopos[0], geopos[1], geopos[2]);
+	  JNI_PRINTF("\ngeo. long %f, lat %f, alt %f", geopos[0], geopos[1], geopos[2]);
 	}
 	if (iflag_f >=0)
 	  iflag = iflag_f;
 	if (strchr(plsel, 'o') == NULL) {
 	  if (iflag & (SEFLG_NONUT | SEFLG_SIDEREAL)) {
-	    printf("\n%-15s %s", "Epsilon (m)", dms(xobl[0],round_flag)); 
+	    JNI_PRINTF("\n%-15s %s", "Epsilon (m)", dms(xobl[0],round_flag)); 
 	  } else {
-	    printf("\n%-15s %s%s", "Epsilon (t/m)", dms(xobl[0],round_flag), gap);
-	    printf("%s", dms(xobl[1],round_flag)); 
+	    JNI_PRINTF("\n%-15s %s%s", "Epsilon (t/m)", dms(xobl[0],round_flag), gap);
+	    JNI_PRINTF("%s", dms(xobl[1],round_flag)); 
 	  }
 	}
 	if (strchr(plsel, 'n') == NULL && !(iflag & (SEFLG_NONUT | SEFLG_SIDEREAL))) {
-	  fputs("\nNutation        ", stdout);
-	  fputs(dms(xobl[2], round_flag), stdout);
-	  fputs(gap, stdout);
-	  fputs(dms(xobl[3], round_flag), stdout);
+	  do_printf("\nNutation        ");
+	  do_printf(dms(xobl[2], round_flag));
+	  do_printf(gap);
+	  do_printf(dms(xobl[3], round_flag));
 	}
-        printf("\n");
+        JNI_PRINTF("\n");
 	if (do_houses) {
 	  const char *shsy = swe_house_name(ihsy);
 	  if (!universal_time) {
 	    do_houses = FALSE;
-	    printf("option -house requires option -ut for Universal Time\n");
+	    JNI_PRINTF("option -house requires option -ut for Universal Time\n");
 	  } else {
 	  strcpy(s1, dms(top_long, round_flag)); 
 	  strcpy(s2, dms(top_lat, round_flag));
-	  printf("Houses system %c (%s) for long=%s, lat=%s\n", ihsy, shsy, s1, s2);
+	  JNI_PRINTF("Houses system %c (%s) for long=%s, lat=%s\n", ihsy, shsy, s1, s2);
 	  }
 	}
       }
@@ -1577,8 +1584,8 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
         with_header = FALSE;
       if (do_ayanamsa) {
 	if (swe_get_ayanamsa_ex(te, iflag, &daya, serr) == ERR) {
-	  printf("   error in swe_get_ayanamsa_ex(): %s\n", serr);
-	  return 1; //exit(1);
+	  JNI_PRINTF("   error in swe_get_ayanamsa_ex(): %s\n", serr);
+	  JNI_EXIT(1);
 	}
 	x[0] = daya;
         print_line(MODE_AYANAMSA, TRUE, sid_mode);
@@ -1596,7 +1603,7 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
 	    print_line(MODE_LABEL, is_first, 0);
 	    is_first = FALSE;
 	  }
-	  printf("\n");
+	  JNI_PRINTF("\n");
 	} else {
 	  print_line(MODE_LABEL, TRUE, 0);
         }
@@ -1606,8 +1613,8 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
         if (*psp == 'e') continue;
         ipl = letter_to_ipl((int) *psp);
 	if (ipl == -2) {
-	  printf("illegal parameter -p%s\n", plsel);
-	  return 1; //exit(1);
+	  JNI_PRINTF("illegal parameter -p%s\n", plsel);
+	  JNI_EXIT(1);
 	}
         if (*psp == 'f')      // fixed star
           ipl = SE_FIXSTAR;
@@ -1662,7 +1669,7 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
 	      sprintf(sbeg, "%d.%02d.%04d", jday, jmon, jyear);
 	      swe_revjul(tfend, gregflag, &jyear, &jmon, &jday, &jut);
 	      sprintf(send, "%d.%02d.%04d", jday, jmon, jyear);
-	      printf("range %s: %.1lf = %s to %.1lf = %s de=%d\n", fnam, tfstart, sbeg, tfend, send, denum);
+	      JNI_PRINTF("range %s: %.1lf = %s to %.1lf = %s de=%d\n", fnam, tfstart, sbeg, tfend, send, denum);
 	      show_file_limit = FALSE;
 	    }
 	  }
@@ -1696,7 +1703,7 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
 	}
 	if (*psp == 'b') {/* ayanamsha */
 	  if (swe_get_ayanamsa_ex(te, iflag, &(x[0]), serr) == ERR) {
-	    printf("   error in swe_get_ayanamsa_ex(): %s\n", serr);
+	    JNI_PRINTF("   error in swe_get_ayanamsa_ex(): %s\n", serr);
 	    iflgret = -1;
 	  }
 	  x[1] = 0;
@@ -1711,9 +1718,9 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
 		|| ipl >= SE_PLMOON_OFFSET
                 || ipl >= SE_AST_OFFSET || ipl == SE_FIXSTAR
 		|| *psp == 'y')) {
-            fputs("error: ", stdout);
-            fputs(serr, stdout);
-            fputs("\n", stdout);
+            do_printf("error: ");
+            do_printf(serr);
+            do_printf("\n");
           }
           strcpy(serr_save, serr);
         } else if (*serr != '\0' && *serr_warn == '\0') {
@@ -1725,9 +1732,9 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
 	  if (diff_mode == DIFF_GEOHEL)
 	    iflgret = swe_calc(te, ipldiff, iflag|SEFLG_HELCTR, x2, serr);
           if (iflgret < 0) { 
-            fputs("error: ", stdout);
-            fputs(serr, stdout);
-            fputs("\n", stdout);
+            do_printf("error: ");
+            do_printf(serr);
+            do_printf("\n");
           }
 	  if (diff_mode == DIFF_DIFF || diff_mode == DIFF_GEOHEL) {
 	    for (i = 1; i < 6; i++) 
@@ -1911,12 +1918,12 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
 	  continue;
 	}
         if (line_count >= line_limit) {
-          printf("****** line count %d was exceeded\n", line_limit);
+          JNI_PRINTF("****** line count %d was exceeded\n", line_limit);
           break;
         }
       }         /* for psp */
       if (list_hor) {
-	printf("\n");
+	JNI_PRINTF("\n");
         line_count++;
       }
       if (do_houses) {
@@ -1935,9 +1942,9 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
 	  const char *shsy = swe_house_name(ihsy);
 	  sprintf(serr, "House method %s failed, Porphyry calculated instead", shsy); 
           if (strcmp(serr, serr_save) != 0 ) {
-            fputs("error: ", stdout);
-            fputs(serr, stdout);
-            fputs("\n", stdout);
+            do_printf("error: ");
+            do_printf(serr);
+            do_printf("\n");
           }
           strcpy(serr_save, serr);
 	  ihsy = 'O';
@@ -1981,25 +1988,25 @@ ext_def(int32) swe_test_main(int32 argc, char *argv[], jobject jout)
 	  if (! list_hor) line_count++;
 	}
 	if (list_hor) {
-	  printf("\n");
+	  JNI_PRINTF("\n");
 	  line_count++;
 	}
       }
       if (line_count >= line_limit) {
-	printf("****** line count %d was exceeded\n", line_limit);
+	JNI_PRINTF("****** line count %d was exceeded\n", line_limit);
         break;
       }
     }           /* for tjd */
     if (*serr_warn != '\0') {
-      printf("\nwarning: ");
-      fputs(serr_warn,stdout);
-      printf("\n");
+      JNI_PRINTF("\nwarning: ");
+      do_printf(serr_warn);
+      JNI_PRINTF("\n");
     }
   }             /* while 1 */
   /* close open files and free allocated space */
   end_main:
   if (do_set_astro_models) {
-    printf("%s", smod);
+    JNI_PRINTF("%s", smod);
   }
   swe_close();
   return  OK;
@@ -2099,76 +2106,76 @@ static int print_line(int mode, AS_BOOL is_first, int sid_mode)
     if (is_house && strchr("bBrRxXuUQnNfFj+-*/=", *sp) != NULL) continue;
     if (is_ayana && strchr("bBsSrRxXuUQnNfFj+-*/=", *sp) != NULL) continue;
     if (sp != fmt)
-      fputs(gap,stdout);
+      do_printf(gap);
     if (sp == fmt && list_hor && !is_first && strchr("yYJtT", *sp) == NULL)
-      fputs(gap,stdout);	
+      do_printf(gap);	
     switch(*sp) {
     case 'y':
         if (list_hor && ! is_first) {
 	  break;
 	}
-        if (is_label) { printf("year"); break; }
-	printf("%d", jyear);
+        if (is_label) { JNI_PRINTF("year"); break; }
+	JNI_PRINTF("%d", jyear);
 	break;
     case 'Y':
         if (list_hor && ! is_first) {
 	  break;
 	}
-        if (is_label) { printf("year"); break; }
+        if (is_label) { JNI_PRINTF("year"); break; }
 	t2 = swe_julday(jyear,1,1,ju2,gregflag);
 	y_frac = (t - t2) / 365.0;
-	printf("%.2f", jyear + y_frac);
+	JNI_PRINTF("%.2f", jyear + y_frac);
 	break;
     case 'p':
-        if (is_label) { printf("obj.nr"); break; }
+        if (is_label) { JNI_PRINTF("obj.nr"); break; }
 	if (! is_house && diff_mode == DIFF_DIFF) {
-	  printf("%d-%d", ipl, ipldiff);
+	  JNI_PRINTF("%d-%d", ipl, ipldiff);
 	} else if (! is_house && diff_mode == DIFF_GEOHEL) {
-	  printf("%d-%dhel", ipl, ipldiff);
+	  JNI_PRINTF("%d-%dhel", ipl, ipldiff);
 	} else if (! is_house && diff_mode == DIFF_MIDP) {
-	  printf("%d/%d", ipl, ipldiff);
+	  JNI_PRINTF("%d/%d", ipl, ipldiff);
 	} else {
-	  printf("%d", ipl);
+	  JNI_PRINTF("%d", ipl);
 	}
 	break;
     case 'P':
-        if (is_label) { printf("%-15s", "name"); break; }
+        if (is_label) { JNI_PRINTF("%-15s", "name"); break; }
 	if (is_house) {
 	  if (ipl <= nhouses) {
-	    printf("house %2d       ", ipl);
+	    JNI_PRINTF("house %2d       ", ipl);
 	  } else {
-	    printf("%-15s", hs_nam[ipl - nhouses]);
+	    JNI_PRINTF("%-15s", hs_nam[ipl - nhouses]);
 	  }
 	} else if (is_ayana) {
-	  // printf("Ayanamsha       ");
-	  printf("Ayanamsha %s ", swe_get_ayanamsa_name(sid_mode));
+	  // JNI_PRINTF("Ayanamsha       ");
+	  JNI_PRINTF("Ayanamsha %s ", swe_get_ayanamsa_name(sid_mode));
 	} else if (diff_mode == DIFF_DIFF || diff_mode == DIFF_GEOHEL) {
-	  printf("%.3s-%.3s", spnam, spnam2);
+	  JNI_PRINTF("%.3s-%.3s", spnam, spnam2);
 	} else if (diff_mode == DIFF_MIDP) {
-	  printf("%.3s/%.3s", spnam, spnam2);
+	  JNI_PRINTF("%.3s/%.3s", spnam, spnam2);
 	} else {
-	  printf("%-15s", spnam);
+	  JNI_PRINTF("%-15s", spnam);
 	}
 	break;
     case 'J':
         if (list_hor && ! is_first) {
 	  break;
 	}
-        if (is_label) { printf("julday"); break; }
+        if (is_label) { JNI_PRINTF("julday"); break; }
 	y_frac = (t - floor(t)) * 100;
 	if (floor(y_frac) != y_frac) {
-	  printf("%.5f", t);
+	  JNI_PRINTF("%.5f", t);
 	} else {
-	  printf("%.2f", t);
+	  JNI_PRINTF("%.2f", t);
 	}
 	break;
     case 'T':
         if (list_hor && ! is_first) {
 	  break;
 	}
-        if (is_label) { printf("date    "); break; }
-	printf("%02d.%02d.%04d", jday, jmon, jyear);
-	if (gregflag == SE_JUL_CAL) printf("j");
+        if (is_label) { JNI_PRINTF("date    "); break; }
+	JNI_PRINTF("%02d.%02d.%04d", jday, jmon, jyear);
+	if (gregflag == SE_JUL_CAL) JNI_PRINTF("j");
 	if (jut != 0 || step_in_minutes || step_in_seconds ) {
 	  int h, m, s, isgn;
 	  double dsecfr;
@@ -2176,155 +2183,162 @@ static int print_line(int mode, AS_BOOL is_first, int sid_mode)
 	  if ((tstep < 1 && tstep > -1) && step_in_seconds) {
 	    roundflag = 0;
 	    swe_split_deg(jut, roundflag, &h, &m, &s, &dsecfr, &isgn);
-	    printf(" %d:%02d:%02.2lf", h, m, s + dsecfr);
+	    JNI_PRINTF(" %d:%02d:%02.2lf", h, m, s + dsecfr);
 	  } else {
 	    swe_split_deg(jut, roundflag, &h, &m, &s, &dsecfr, &isgn);
-	    printf(" %d:%02d:%02d", h, m, s);
+	    JNI_PRINTF(" %d:%02d:%02d", h, m, s);
 	  }
-	  if (universal_time)
-	    printf(" UT");
-	  else
-	    printf(" TT");
+	  if (universal_time) {
+	    JNI_PRINTF(" UT");
+	  } else {
+	    JNI_PRINTF(" TT");
+	  }
 	}
 	break;
     case 't':
         if (list_hor && ! is_first) {
 	  break;
 	}
-        if (is_label) { printf("date"); break; }
-	printf("%02d%02d%02d", jyear % 100, jmon, jday);
+        if (is_label) { JNI_PRINTF("date"); break; }
+	JNI_PRINTF("%02d%02d%02d", jyear % 100, jmon, jday);
 	break;
     case 'L':
-        if (is_label) { printf("%s", slon); break; }
+        if (is_label) { JNI_PRINTF("%s", slon); break; }
 	if (psp != NULL && (*psp == 'q' || *psp == 'y')) { /* delta t or time equation */
-	  printf("%# 11.7f", x[0]);
-	  printf("s");
+	  JNI_PRINTF("%# 11.7f", x[0]);
+	  JNI_PRINTF("s");
 	  break;
 	}
-	fputs(dms(x[0], round_flag),stdout);
+	do_printf(dms(x[0], round_flag));
 	break;
     case 'l':
-        if (is_label) { printf("%s", slon); break; }
-	if (output_extra_prec)
-	  printf("%# 11.11f", x[0]);
-	else
-	  printf("%# 11.7f", x[0]);
+        if (is_label) { JNI_PRINTF("%s", slon); break; }
+	if (output_extra_prec) {
+	  JNI_PRINTF("%# 11.11f", x[0]);
+	} else {
+	  JNI_PRINTF("%# 11.7f", x[0]);
+	}
 	break;
     case 'G':
-        if (is_label) { printf("housPos"); break; }
-	fputs(dms(hpos, round_flag),stdout);
+        if (is_label) { JNI_PRINTF("housPos"); break; }
+	do_printf(dms(hpos, round_flag));
 	break;
     case 'g':
-        if (is_label) { printf("housPos"); break; }
-	printf("%# 11.7f", hpos);
+        if (is_label) { JNI_PRINTF("housPos"); break; }
+	JNI_PRINTF("%# 11.7f", hpos);
 	break;
     case 'j':
-        if (is_label) { printf("houseNr"); break; }
-	printf("%# 11.7f", hposj);
+        if (is_label) { JNI_PRINTF("houseNr"); break; }
+	JNI_PRINTF("%# 11.7f", hposj);
 	break;
     case 'Z':
-        if (is_label) { printf("%s", slon); break; }
-	fputs(dms(x[0], round_flag|BIT_ZODIAC),stdout);
+        if (is_label) { JNI_PRINTF("%s", slon); break; }
+	do_printf(dms(x[0], round_flag|BIT_ZODIAC));
 	break;
     case 'S':
     case 's':
 	if (*(sp+1) == 'S' || *(sp+1) == 's' || strpbrk(fmt, "XUxu") != NULL) {
 	  for (sp2 = fmt; *sp2 != '\0'; sp2++) {
 	    if (sp2 != fmt) 
-	      fputs(gap,stdout);
+	      do_printf(gap);
 	    switch(*sp2) {
 	      case 'L':   /* speed! */
 	      case 'Z':   /* speed! */
-		if (is_label) { printf("lon/day"); break; }
-		fputs(dms(x[3], round_flag),stdout);
+		if (is_label) { JNI_PRINTF("lon/day"); break; }
+		do_printf(dms(x[3], round_flag));
 		break;
 	      case 'l':   /* speed! */
-		if (is_label) { printf("lon/day"); break; }
-		if (output_extra_prec)
-		  printf("%# 11.9f", x[3]);
-		else
-		  printf("%# 11.7f", x[3]);
+		if (is_label) { JNI_PRINTF("lon/day"); break; }
+		if (output_extra_prec) {
+		  JNI_PRINTF("%# 11.9f", x[3]);
+		} else {
+		  JNI_PRINTF("%# 11.7f", x[3]);
+		}
 		break;
 	      case 'B':   /* speed! */
-		if (is_label) { printf("lat/day"); break; }
-		fputs(dms(x[4], round_flag),stdout);
+		if (is_label) { JNI_PRINTF("lat/day"); break; }
+		do_printf(dms(x[4], round_flag));
 		break;
 	      case 'b':   /* speed! */
-		if (is_label) { printf("lat/day"); break; }
-		if (output_extra_prec)
-		  printf("%# 11.9f", x[4]);
-		else
-		  printf("%# 11.7f", x[4]);
+		if (is_label) { JNI_PRINTF("lat/day"); break; }
+		if (output_extra_prec) {
+		  JNI_PRINTF("%# 11.9f", x[4]);
+		} else {
+		  JNI_PRINTF("%# 11.7f", x[4]);
+		}
 		break;
 	      case 'A':   /* speed! */
-		if (is_label) { printf("RA/day"); break; }
-		fputs(dms(xequ[3]/15, round_flag|SEFLG_EQUATORIAL),stdout);
+		if (is_label) { JNI_PRINTF("RA/day"); break; }
+		do_printf(dms(xequ[3]/15, round_flag|SEFLG_EQUATORIAL));
 		break;
 	      case 'a':   /* speed! */
-		if (is_label) { printf("RA/day"); break; }
-		if (output_extra_prec)
-		  printf("%# 11.9f", xequ[3]);
-		else
-		  printf("%# 11.7f", xequ[3]);
+		if (is_label) { JNI_PRINTF("RA/day"); break; }
+		if (output_extra_prec) {
+		  JNI_PRINTF("%# 11.9f", xequ[3]);
+		} else {
+		  JNI_PRINTF("%# 11.7f", xequ[3]);
+		}
 		break;
 	      case 'D':   /* speed! */
-		if (is_label) { printf("dcl/day"); break; }
-		fputs(dms(xequ[4], round_flag),stdout);
+		if (is_label) { JNI_PRINTF("dcl/day"); break; }
+		do_printf(dms(xequ[4], round_flag));
 		break;
 	      case 'd':   /* speed! */
-		if (is_label) { printf("dcl/day"); break; }
-		if (output_extra_prec)
-		  printf("%# 11.9f", xequ[4]);
-		else
-		  printf("%# 11.7f", xequ[4]);
+		if (is_label) { JNI_PRINTF("dcl/day"); break; }
+		if (output_extra_prec) {
+		  JNI_PRINTF("%# 11.9f", xequ[4]);
+		} else {
+		  JNI_PRINTF("%# 11.7f", xequ[4]);
+		}
 		break;
 	      case 'R':   /* speed! */
 	      case 'r':   /* speed! */
-		if (is_label) { printf("AU/day"); break; }
-		if (output_extra_prec)
-		  printf("%# 16.14f", x[5]);
-		else
-		  printf("%# 14.9f", x[5]);
+		if (is_label) { JNI_PRINTF("AU/day"); break; }
+		if (output_extra_prec) {
+		  JNI_PRINTF("%# 16.14f", x[5]);
+		} else {
+		  JNI_PRINTF("%# 14.9f", x[5]);
+		}
 		break;
 	      case 'U':   /* speed! */
 	      case 'X':   /* speed! */
 		if (is_label) { 
-		  fputs("speed_0", stdout);
-		  fputs(gap, stdout);
-		  fputs("speed_1", stdout);
-		  fputs(gap, stdout);
-		  fputs("speed_2", stdout);
+		  do_printf("speed_0");
+		  do_printf(gap);
+		  do_printf("speed_1");
+		  do_printf(gap);
+		  do_printf("speed_2");
 		  break; 
 		}
 		if (*sp =='U') 
 		  ar = sqrt(square_sum(xcart));
 		else 
 		  ar = 1;
-		printf("%# 14.9f", xcart[3]/ar);
-		fputs(gap,stdout);
-		printf("%# 14.9f", xcart[4]/ar);
-		fputs(gap,stdout);
-		printf("%# 14.9f", xcart[5]/ar);
+		JNI_PRINTF("%# 14.9f", xcart[3]/ar);
+		do_printf(gap);
+		JNI_PRINTF("%# 14.9f", xcart[4]/ar);
+		do_printf(gap);
+		JNI_PRINTF("%# 14.9f", xcart[5]/ar);
 		break;
 	      case 'u':   /* speed! */
 	      case 'x':   /* speed! */
 		if (is_label) { 
-		  fputs("speed_0", stdout);
-		  fputs(gap, stdout);
-		  fputs("speed_1", stdout);
-		  fputs(gap, stdout);
-		  fputs("speed_2", stdout);
+		  do_printf("speed_0");
+		  do_printf(gap);
+		  do_printf("speed_1");
+		  do_printf(gap);
+		  do_printf("speed_2");
 		  break; 
 		}
 		if (*sp =='u') 
 		  ar = sqrt(square_sum(xcartq));
 		else 
 		  ar = 1;
-		printf("%# 14.9f", xcartq[3]/ar);
-		fputs(gap,stdout);
-		printf("%# 14.9f", xcartq[4]/ar);
-		fputs(gap,stdout);
-		printf("%# 14.9f", xcartq[5]/ar);
+		JNI_PRINTF("%# 14.9f", xcartq[3]/ar);
+		do_printf(gap);
+		JNI_PRINTF("%# 14.9f", xcartq[4]/ar);
+		do_printf(gap);
+		JNI_PRINTF("%# 14.9f", xcartq[5]/ar);
 		break;
 	      default:
 		break;
@@ -2335,113 +2349,118 @@ static int print_line(int mode, AS_BOOL is_first, int sid_mode)
 	} else if (*sp == 'S') {
 	  int flag = round_flag;
 	  if (is_house) flag |= BIT_ALLOW_361;	// speed of houses can be > 360
-	  if (is_label) { printf("deg/day"); break; }
-	  fputs(dms(x[3], flag),stdout);
+	  if (is_label) { JNI_PRINTF("deg/day"); break; }
+	  do_printf(dms(x[3], flag));
 	} else {
-	  if (is_label) { printf("deg/day"); break; }
-	  if (output_extra_prec)
-	    printf("%# 11.17f", x[3]);
-	  else
-	    printf("%# 11.7f", x[3]);
+	  if (is_label) { JNI_PRINTF("deg/day"); break; }
+	  if (output_extra_prec) {
+	    JNI_PRINTF("%# 11.17f", x[3]);
+	  } else {
+	    JNI_PRINTF("%# 11.7f", x[3]);
+	  }
 	}
 	break;
     case 'B':
-	if (is_label) { printf("lat.    "); break; }
+	if (is_label) { JNI_PRINTF("lat.    "); break; }
 	if (*psp == 'q') { /* delta t */
-	  printf("%# 11.7f", x[1]);
-	  printf("h");
+	  JNI_PRINTF("%# 11.7f", x[1]);
+	  JNI_PRINTF("h");
 	  break;
 	}
-	fputs(dms(x[1], round_flag),stdout);
+	do_printf(dms(x[1], round_flag));
 	break;
     case 'b':
-	if (is_label) { printf("lat.    "); break; }
-	if (output_extra_prec)
-	  printf("%# 11.11f", x[1]);
-	else
-	  printf("%# 11.7f", x[1]);
+	if (is_label) { JNI_PRINTF("lat.    "); break; }
+	if (output_extra_prec) {
+	  JNI_PRINTF("%# 11.11f", x[1]);
+	} else {
+	  JNI_PRINTF("%# 11.7f", x[1]);
+	}
 	break;
     case 'A':     /* right ascension */
-	if (is_label) { printf("RA      "); break; }
-	fputs(dms(xequ[0]/15, round_flag|SEFLG_EQUATORIAL),stdout);
+	if (is_label) { JNI_PRINTF("RA      "); break; }
+	do_printf(dms(xequ[0]/15, round_flag|SEFLG_EQUATORIAL));
 	break;
     case 'a':     /* right ascension */
-	if (is_label) { printf("RA      "); break; }
-	if (output_extra_prec)
-	  printf("%# 11.11f", xequ[0]);
-	else
-	  printf("%# 11.7f", xequ[0]);
+	if (is_label) { JNI_PRINTF("RA      "); break; }
+	if (output_extra_prec) {
+	  JNI_PRINTF("%# 11.11f", xequ[0]);
+	} else {
+	  JNI_PRINTF("%# 11.7f", xequ[0]);
+	}
 	break;
     case 'D':     /* declination */
-	if (is_label) { printf("decl      "); break; }
-	fputs(dms(xequ[1], round_flag),stdout);
+	if (is_label) { JNI_PRINTF("decl      "); break; }
+	do_printf(dms(xequ[1], round_flag));
 	break;
     case 'd':     /* declination */
-	if (is_label) { printf("decl      "); break; }
-	if (output_extra_prec)
-	  printf("%# 11.11f", xequ[1]);
-	else
-	  printf("%# 11.7f", xequ[1]);
+	if (is_label) { JNI_PRINTF("decl      "); break; }
+	if (output_extra_prec) {
+	  JNI_PRINTF("%# 11.11f", xequ[1]);
+	} else {
+	  JNI_PRINTF("%# 11.7f", xequ[1]);
+	}
 	break;
     case 'I':     /* azimuth */
-	if (is_label) { printf("azimuth"); break; }
-	fputs(dms(xaz[0], round_flag),stdout);
+	if (is_label) { JNI_PRINTF("azimuth"); break; }
+	do_printf(dms(xaz[0], round_flag));
 	break;
     case 'i':     /* azimuth */
-	if (is_label) { printf("azimuth"); break; }
-	printf("%# 11.7f", xaz[0]);
+	if (is_label) { JNI_PRINTF("azimuth"); break; }
+	JNI_PRINTF("%# 11.7f", xaz[0]);
 	break;
     case 'H':     /* height */
-	if (is_label) { printf("height"); break; }
-	fputs(dms(xaz[1], round_flag),stdout);
+	if (is_label) { JNI_PRINTF("height"); break; }
+	do_printf(dms(xaz[1], round_flag));
 	break;
     case 'h':     /* height */
-	if (is_label) { printf("height"); break; }
-	printf("%# 11.7f", xaz[1]);
+	if (is_label) { JNI_PRINTF("height"); break; }
+	JNI_PRINTF("%# 11.7f", xaz[1]);
 	break;
     case 'K':     /* height (apparent) */
-	if (is_label) { printf("hgtApp"); break; }
-	fputs(dms(xaz[2], round_flag),stdout);
+	if (is_label) { JNI_PRINTF("hgtApp"); break; }
+	do_printf(dms(xaz[2], round_flag));
 	break;
     case 'k':     /* height (apparent) */
-	if (is_label) { printf("hgtApp"); break; }
-	printf("%# 11.7f", xaz[2]);
+	if (is_label) { JNI_PRINTF("hgtApp"); break; }
+	JNI_PRINTF("%# 11.7f", xaz[2]);
 	break;
     case 'R':
-	if (is_label) { printf("distAU   "); break; }
-	if (output_extra_prec)
-	  printf("%# 16.14f", x[2]);
-	else
-	  printf("%# 14.9f", x[2]);
+	if (is_label) { JNI_PRINTF("distAU   "); break; }
+	if (output_extra_prec) {
+	  JNI_PRINTF("%# 16.14f", x[2]);
+	} else {
+	  JNI_PRINTF("%# 14.9f", x[2]);
+	}
 	break;
     case 'W':
-	if (is_label) { printf("distLY   "); break; }
-	printf("%# 14.9f", x[2] * SE_AUNIT_TO_LIGHTYEAR);
+	if (is_label) { JNI_PRINTF("distLY   "); break; }
+	JNI_PRINTF("%# 14.9f", x[2] * SE_AUNIT_TO_LIGHTYEAR);
 	break;
     case 'w':
-	if (is_label) { printf("distkm   "); break; }
-	printf("%# 14.9f", x[2] * SE_AUNIT_TO_KM);
+	if (is_label) { JNI_PRINTF("distkm   "); break; }
+	JNI_PRINTF("%# 14.9f", x[2] * SE_AUNIT_TO_KM);
 	break;
     case 'r':
-	if (is_label) { printf("dist"); break; }
+	if (is_label) { JNI_PRINTF("dist"); break; }
 	if ( ipl == SE_MOON ) { /* for moon print parallax */
 	  /* geocentric horizontal parallax: */
 	  if ((0)) {
 	    sinp = 8.794 / x[2];    /* in seconds of arc */
 	    ar = sinp * (1 + sinp * sinp * 3.917402e-12);
 	    /* the factor is 1 / (3600^2 * (180/pi)^2 * 6) */
-	    printf("%# 13.5f\" %# 13.5f'", ar, ar/60.0);
+	    JNI_PRINTF("%# 13.5f\" %# 13.5f'", ar, ar/60.0);
 	  }
 	  swe_pheno(te, ipl, iflag, dret, serr);
-	  printf("%# 13.5f\"", dret[5] * 3600);
+	  JNI_PRINTF("%# 13.5f\"", dret[5] * 3600);
 	} else {
-	  printf("%# 14.9f", x[2]);
+	  JNI_PRINTF("%# 14.9f", x[2]);
 	}
 	break;
     case 'q':
-	if (is_label) { printf("reldist"); break; }
+	if (is_label) { JNI_PRINTF("reldist"); break; }
         dar = get_geocentric_relative_distance(te, ipl, iflag, serr);
-	printf("% 5d", dar);
+	JNI_PRINTF("% 5d", dar);
 	break;
     case 'U':
     case 'X':
@@ -2449,20 +2468,20 @@ static int print_line(int mode, AS_BOOL is_first, int sid_mode)
 	  ar = sqrt(square_sum(xcart));
 	else 
 	  ar = 1;
-	printf("%# 14.9f", xcart[0]/ar);
-	fputs(gap,stdout);
-	printf("%# 14.9f", xcart[1]/ar);
-	fputs(gap,stdout);
-	printf("%# 14.9f", xcart[2]/ar);
+	JNI_PRINTF("%# 14.9f", xcart[0]/ar);
+	do_printf(gap);
+	JNI_PRINTF("%# 14.9f", xcart[1]/ar);
+	do_printf(gap);
+	JNI_PRINTF("%# 14.9f", xcart[2]/ar);
 	break;
     case 'u':
     case 'x':
 	if (is_label) { 
-	  fputs("x0", stdout);
-	  fputs(gap, stdout);
-	  fputs("x1", stdout);
-	  fputs(gap, stdout);
-	  fputs("x2", stdout);
+	  do_printf("x0");
+	  do_printf(gap);
+	  do_printf("x1");
+	  do_printf(gap);
+	  do_printf("x2");
 	  break; 
 	}
 	if (*sp =='u') 
@@ -2470,32 +2489,32 @@ static int print_line(int mode, AS_BOOL is_first, int sid_mode)
 	else 
 	  ar = 1;
 	if (output_extra_prec) {
-	  printf("%# .17f", xcartq[0]/ar);
-	  fputs(gap,stdout);
-	  printf("%# .17f", xcartq[1]/ar);
-	  fputs(gap,stdout);
-	  printf("%# .17f", xcartq[2]/ar);
+	  JNI_PRINTF("%# .17f", xcartq[0]/ar);
+	  do_printf(gap);
+	  JNI_PRINTF("%# .17f", xcartq[1]/ar);
+	  do_printf(gap);
+	  JNI_PRINTF("%# .17f", xcartq[2]/ar);
 	} else {
-	  printf("%# 14.9f", xcartq[0]/ar);
-	  fputs(gap,stdout);
-	  printf("%# 14.9f", xcartq[1]/ar);
-	  fputs(gap,stdout);
-	  printf("%# 14.9f", xcartq[2]/ar);
+	  JNI_PRINTF("%# 14.9f", xcartq[0]/ar);
+	  do_printf(gap);
+	  JNI_PRINTF("%# 14.9f", xcartq[1]/ar);
+	  do_printf(gap);
+	  JNI_PRINTF("%# 14.9f", xcartq[2]/ar);
 	}
 	break;
     case 'Q':
-	if (is_label) { printf("Q"); break; }
-	printf("%-15s", spnam);
-	fputs(dms(x[0], round_flag),stdout);
-	fputs(dms(x[1], round_flag),stdout);
-	printf("  %# 14.9f", x[2]);
-	fputs(dms(x[3], round_flag),stdout);
-	fputs(dms(x[4], round_flag),stdout);
-	printf("  %# 14.9f\n", x[5]);
-	printf("               %s", dms(xequ[0], round_flag));
-	fputs(dms(xequ[1], round_flag),stdout);
-	printf("                %s", dms(xequ[3], round_flag));
-	fputs(dms(xequ[4], round_flag),stdout);
+	if (is_label) { JNI_PRINTF("Q"); break; }
+	JNI_PRINTF("%-15s", spnam);
+	do_printf(dms(x[0], round_flag));
+	do_printf(dms(x[1], round_flag));
+	JNI_PRINTF("  %# 14.9f", x[2]);
+	do_printf(dms(x[3], round_flag));
+	do_printf(dms(x[4], round_flag));
+	JNI_PRINTF("  %# 14.9f\n", x[5]);
+	JNI_PRINTF("               %s", dms(xequ[0], round_flag));
+	do_printf(dms(xequ[1], round_flag));
+	JNI_PRINTF("                %s", dms(xequ[3], round_flag));
+	do_printf(dms(xequ[4], round_flag));
 	break;
     case 'N': 
     case 'n': {
@@ -2504,20 +2523,20 @@ static int print_line(int mode, AS_BOOL is_first, int sid_mode)
 	iflgret = swe_nod_aps(te, ipl, iflag, imeth, xasc, xdsc, NULL, NULL, serr);
 	if (iflgret >= 0 && (ipl <= SE_NEPTUNE || *sp == 'N') ) {
 	  if (is_label) { 
-	    fputs("nodAsc", stdout);
-	    fputs(gap, stdout);
-	    fputs("nodDesc", stdout);
+	    do_printf("nodAsc");
+	    do_printf(gap);
+	    do_printf("nodDesc");
 	    break; 
 	  }
 	  if (use_dms)
-	    fputs(dms(xasc[0], round_flag|BIT_ZODIAC),stdout);
+	    do_printf(dms(xasc[0], round_flag|BIT_ZODIAC));
 	  else
-	    printf("%# 11.7f", xasc[0]);
-	  fputs(gap,stdout);
+	    JNI_PRINTF("%# 11.7f", xasc[0]);
+	  do_printf(gap);
 	  if (use_dms)
-	    fputs(dms(xdsc[0], round_flag|BIT_ZODIAC),stdout);
+	    do_printf(dms(xdsc[0], round_flag|BIT_ZODIAC));
 	  else
-	    printf("%# 11.7f", xdsc[0]);
+	    JNI_PRINTF("%# 11.7f", xdsc[0]);
 	}
       };
       break;
@@ -2530,98 +2549,100 @@ static int print_line(int mode, AS_BOOL is_first, int sid_mode)
 	iflgret = swe_nod_aps(te, ipl, iflag, imeth, NULL, NULL, xper, xaph, serr);
 	if (iflgret >= 0 && (ipl <= SE_NEPTUNE || *sp == 'F') ) {
 	  if (is_label) { 
-	    fputs("peri", stdout);
-	    fputs(gap, stdout);
-	    fputs("apo", stdout);
-	    fputs(gap, stdout);
-	    fputs("focus", stdout);
+	    do_printf("peri");
+	    do_printf(gap);
+	    do_printf("apo");
+	    do_printf(gap);
+	    do_printf("focus");
 	    break; 
 	  }
-	  printf("%# 11.7f", xper[0]);
-	  fputs(gap,stdout);
-	  printf("%# 11.7f", xaph[0]);
+	  JNI_PRINTF("%# 11.7f", xper[0]);
+	  do_printf(gap);
+	  JNI_PRINTF("%# 11.7f", xaph[0]);
 	}
 	imeth |= SE_NODBIT_FOPOINT;
 	iflgret = swe_nod_aps(te, ipl, iflag, imeth, NULL, NULL, xper, xfoc, serr);
 	if (iflgret >= 0 && (ipl <= SE_NEPTUNE || *sp == 'F') ) {
-	  fputs(gap,stdout);
-	  printf("%# 11.7f", xfoc[0]);
+	  do_printf(gap);
+	  JNI_PRINTF("%# 11.7f", xfoc[0]);
 	}
       };
       break;
     case '+':
 	if (is_house) break;
-        if (is_label) { printf("phase"); break; }
+        if (is_label) { JNI_PRINTF("phase"); break; }
 	if (strchr(fmt, 'l') != NULL) {	// if decimal longitude is present, do phae angle also decimal
-	  printf("%# 11.7f", attr[0]);
+	  JNI_PRINTF("%# 11.7f", attr[0]);
 	} else {
-	  fputs(dms(attr[0], round_flag),stdout);
+	  do_printf(dms(attr[0], round_flag));
 	}
 	break;
     case '-':
-        if (is_label) { printf("phase"); break; }
+        if (is_label) { JNI_PRINTF("phase"); break; }
 	if (is_house) break;
-	printf("  %# 14.9f", attr[1]);
+	JNI_PRINTF("  %# 14.9f", attr[1]);
 	break;
     case '*':
-        if (is_label) { printf("elong"); break; }
+        if (is_label) { JNI_PRINTF("elong"); break; }
 	if (is_house) break;
 	if (strchr(fmt, 'l') != NULL) {	// if decimal longitude is present, do elongation also decimal
-	  printf("%# 11.7f", attr[2]);
+	  JNI_PRINTF("%# 11.7f", attr[2]);
 	} else {
-	  fputs(dms(attr[2], round_flag),stdout);
+	  do_printf(dms(attr[2], round_flag));
 	}
 	break;
     case '/':
-        if (is_label) { printf("diamet"); break; }
+        if (is_label) { JNI_PRINTF("diamet"); break; }
 	if (is_house) break;
-	fputs(dms(attr[3], round_flag),stdout);
+	do_printf(dms(attr[3], round_flag));
 	break;
     case '=':
-        if (is_label) { printf("magn"); break; }
+        if (is_label) { JNI_PRINTF("magn"); break; }
 	if (is_house) break;
-	printf("  %# 6.3fm", attr[4]);
+	JNI_PRINTF("  %# 6.3fm", attr[4]);
 	break;
     case 'V': /* human design gates */
     case 'v': {
         double xhds;
         int igate, iline, ihex;
         static int hexa[64] = {1, 43, 14, 34, 9, 5, 26, 11, 10, 58, 38, 54, 61, 60, 41, 19, 13, 49, 30, 55, 37, 63, 22, 36, 25, 17, 21, 51, 42, 3, 27, 24, 2, 23, 8, 20, 16, 35, 45, 12, 15, 52, 39, 53, 62, 56, 31, 33, 7, 4, 29, 59, 40, 64, 47, 6, 46, 18, 48, 57, 32, 50, 28, 44};
-        if (is_label) { printf("hds"); break; }
+        if (is_label) { JNI_PRINTF("hds"); break; }
         if (is_house) break;
         xhds = swe_degnorm(x[0] - 223.25);
         ihex = (int) floor(xhds / 5.625);
         iline = ((int) (floor(xhds / 0.9375))) % 6 + 1 ;
         igate = hexa[ihex];
-        printf("%2d.%d", igate, iline);
+        JNI_PRINTF("%2d.%d", igate, iline);
 	if (*sp == 'V')
-	  printf(" %2d%%", swe_d2l(100 * fmod(xhds / 0.9375, 1)));
+	  JNI_PRINTF(" %2d%%", swe_d2l(100 * fmod(xhds / 0.9375, 1)));
         break;
       }
     case 'm': {	// Meridian distance
-	if (is_label) { printf("MD      "); break; }
+	if (is_label) { JNI_PRINTF("MD      "); break; }
 	double md = swe_difdeg2n(xequ[0], armc);
 	if (md < 0) md = -md;
-	if (output_extra_prec)
-	  printf("%# 11.11f", md);
-	else
-	  printf("%# 11.7f", md);
+	if (output_extra_prec) {
+	  JNI_PRINTF("%# 11.11f", md);
+	} else {
+	  JNI_PRINTF("%# 11.7f", md);
+	}
     	break;
       }
     case 'z': {	// Zenith distance
-	if (is_label) { printf("ZD      "); break; }
+	if (is_label) { JNI_PRINTF("ZD      "); break; }
 	swe_azalt(tut, SE_EQU2HOR, geopos, datm[0], datm[1], xequ, xaz);
 	double zd = 90 - xaz[1];
-	if (output_extra_prec)
-	  printf("%# 11.11f", zd);
-	else
-	  printf("%# 11.7f", zd);
+	if (output_extra_prec) {
+	  JNI_PRINTF("%# 11.11f", zd);
+	} else {
+	  JNI_PRINTF("%# 11.7f", zd);
+	}
     	break;
       }
     }     /* switch */
   }       /* for sp */
   if (! list_hor)
-    printf("\n");
+    JNI_PRINTF("\n");
   return OK;
 }
 
@@ -2771,15 +2792,15 @@ static int32 orbital_elements(double tjd_et, int32 ipl, int32 iflag, char *serr)
   char sdateperi[20];
   retval = swe_get_orbital_elements(tjd_et, ipl, iflag, dret, serr);
   if (retval == ERR) {
-    printf("%s\n", serr);
+    JNI_PRINTF("%s\n", serr);
     return ERR;
   } else {
     swe_revjul(dret[14], gregflag, &jyear, &jmon, &jday, &jut);
     sprintf(sdateperi, "%2d.%02d.%04d,%s", jday, jmon, jyear, hms(jut,BIT_LZEROES));
-    printf("semiaxis         \t%f\neccentricity     \t%f\ninclination      \t%f\nasc. node       \t%f\narg. pericenter  \t%f\npericenter       \t%f\n", dret[0], dret[1], dret[2], dret[3], dret[4], dret[5]);
-    printf("mean longitude   \t%f\nmean anomaly     \t%f\necc. anomaly     \t%f\ntrue anomaly     \t%f\n", dret[9], dret[6], dret[8], dret[7]);
-    printf("time pericenter  \t%f %s\ndist. pericenter \t%f\ndist. apocenter  \t%f\n", dret[14], sdateperi, dret[15], dret[16]);
-    printf("mean daily motion\t%f\nsid. period (y)  \t%f\ntrop. period (y) \t%f\nsynodic cycle (d)\t%f\n", dret[11], dret[10], dret[12], dret[13]);
+    JNI_PRINTF("semiaxis         \t%f\neccentricity     \t%f\ninclination      \t%f\nasc. node       \t%f\narg. pericenter  \t%f\npericenter       \t%f\n", dret[0], dret[1], dret[2], dret[3], dret[4], dret[5]);
+    JNI_PRINTF("mean longitude   \t%f\nmean anomaly     \t%f\necc. anomaly     \t%f\ntrue anomaly     \t%f\n", dret[9], dret[6], dret[8], dret[7]);
+    JNI_PRINTF("time pericenter  \t%f %s\ndist. pericenter \t%f\ndist. apocenter  \t%f\n", dret[14], sdateperi, dret[15], dret[16]);
+    JNI_PRINTF("mean daily motion\t%f\nsid. period (y)  \t%f\ntrop. period (y) \t%f\nsynodic cycle (d)\t%f\n", dret[11], dret[10], dret[12], dret[13]);
   }
   return OK;
 }
@@ -2854,7 +2875,7 @@ static int32 call_rise_set(double t_ut, int32 ipl, char *star, int32 whicheph, d
   swe_set_topo(geopos[0], geopos[1], geopos[2]); 
   // "geo. long 8.000000, lat 47.000000, alt 0.000000"
   if (with_header)
-    printf("\ngeo. long %f, lat %f, alt %f", geopos[0], geopos[1], geopos[2]);
+    JNI_PRINTF("\ngeo. long %f, lat %f, alt %f", geopos[0], geopos[1], geopos[2]);
   do_printf("\n");
   tnext = t_ut;
   // the code is designed for looping with -nxxx over many days, during which
@@ -2880,7 +2901,7 @@ static int32 call_rise_set(double t_ut, int32 ipl, char *star, int32 whicheph, d
     rval= swe_rise_trans(tnext, ipl, star, whicheph, rsmi, geopos, datm[0], datm[1], &trise, serr);
     if (rval == ERR) {
       do_printf(serr);
-      return 0; //exit(0);
+      JNI_EXIT(0);
     } 
     do_rise = (rval == OK);
     /* setting */
@@ -2892,7 +2913,7 @@ static int32 call_rise_set(double t_ut, int32 ipl, char *star, int32 whicheph, d
       rval = swe_rise_trans(tnext, ipl, star, whicheph, rsmi, geopos, datm[0], datm[1], &tset, serr);
       if (rval == ERR) {
 	do_printf(serr);
-	return 0; //exit(0);
+	JNI_EXIT(0);
       } 
       do_set = (rval == OK);
       if (!do_set && do_rise ) {
@@ -2924,7 +2945,7 @@ static int32 call_rise_set(double t_ut, int32 ipl, char *star, int32 whicheph, d
     }
     if (rval == ERR) {
       do_printf(serr);
-      return 0; //exit(0);
+      JNI_EXIT(0);
     }
     if (nstep == 1) break;
   }
@@ -3008,7 +3029,7 @@ static int32 call_lunar_eclipse(double t_ut, int32 whicheph, int32 special_mode,
   // "geo. long 8.000000, lat 47.000000, alt 0.000000"
   if (special_mode & SP_MODE_LOCAL) {
     if (with_header)
-      printf("\ngeo. long %f, lat %f, alt %f", geopos[0], geopos[1], geopos[2]);
+      JNI_PRINTF("\ngeo. long %f, lat %f, alt %f", geopos[0], geopos[1], geopos[2]);
   }
   do_printf("\n");
   for (ii = 0; ii < nstep; ii++, t_ut += direction) {
@@ -3258,7 +3279,7 @@ static int32 call_solar_eclipse(double t_ut, int32 whicheph, int32 special_mode,
     swe_set_topo(geopos[0], geopos[1], geopos[2]); 
     // "geo. long 8.000000, lat 47.000000, alt 0.000000"
     if (with_header)
-      printf("\ngeo. long %f, lat %f, alt %f", geopos[0], geopos[1], geopos[2]);
+      JNI_PRINTF("\ngeo. long %f, lat %f, alt %f", geopos[0], geopos[1], geopos[2]);
   }
   do_printf("\n");
   for (ii = 0; ii < nstep; ii++, t_ut += direction) {
@@ -3442,7 +3463,7 @@ attr, direction_flag, serr)) == ERR) {
 	swe_split_deg(jut, SE_SPLIT_DEG_ROUND_MIN, &ihou, &imin, &isec, &dfrc, &isgn);
 	sprintf(sout, "\"%04d%s %02d %02d %02d.%02d %d\",\n", jyear, sgj, jmon, jday, ihou, imin, ecl_type);
       } 
-      /*printf("len=%ld\n", strlen(sout));*/
+      /*JNI_PRINTF("len=%ld\n", strlen(sout));*/
       if (short_output) {
 	do_printf(sout_short);
       } else {
@@ -3482,7 +3503,7 @@ static int32 call_lunar_occultation(double t_ut, int32 ipl, char *star, int32 wh
   if (special_mode & SP_MODE_LOCAL) {
     swe_set_topo(geopos[0], geopos[1], geopos[2]); 
     if (with_header)
-      printf("\ngeo. long %f, lat %f, alt %f", geopos[0], geopos[1], geopos[2]);
+      JNI_PRINTF("\ngeo. long %f, lat %f, alt %f", geopos[0], geopos[1], geopos[2]);
   }
   do_printf("\n");
   for (ii = 0; ii < nstep; ii++) {
@@ -3622,7 +3643,7 @@ static int32 call_lunar_occultation(double t_ut, int32 ipl, char *star, int32 wh
       t_ut = tret[0];
       swe_lun_occult_where(t_ut, ipl, star, whicheph, geopos_max, attr, serr);
       /* for (i = 0; i < 8; i++) {
-        printf("attr[%d]=%.17f\n", i, attr[i]);
+        JNI_PRINTF("attr[%d]=%.17f\n", i, attr[i]);
       } */
       if (time_flag & (BIT_TIME_LMT | BIT_TIME_LAT)) {
 	for (i = 0; i < 10; i++) {
@@ -3740,7 +3761,7 @@ static int32 call_heliacal_event(double t_ut, int32 ipl, char *star, int32 which
     swe_get_planet_name(ipl, obj_name);
   }
   if (with_header) {
-    printf("\ngeo. long %f, lat %f, alt %f", geopos[0], geopos[1], geopos[2]);
+    JNI_PRINTF("\ngeo. long %f, lat %f, alt %f", geopos[0], geopos[1], geopos[2]);
     do_printf("\n");
   }
   for (ii = 0; ii < nstep; ii++, t_ut = dret[0] + 1) {
@@ -3921,8 +3942,10 @@ static void do_printf(char *info)
 {
 #ifdef _WINDOWS
   fprintf(fp, info);
+#elif __ANDROID_API__
+  strcat(SWE_OUT,info);
 #else
-  fputs(info,stdout);
+  fputs(info);
 #endif
 }
 
@@ -3968,8 +3991,8 @@ static int make_ephemeris_path(char *argv0, char *path)
   /* current working drive */
   sp[0] = getcwd(NULL, 0);
   if (sp[0] == NULL) {
-    printf("error in getcwd()\n");
-    return 1; //exit(1);
+    JNI_PRINTF("error in getcwd()\n");
+    JNI_EXIT(1);
   } 
   if (*sp[0] == 'C')
     sp[0] = NULL;
