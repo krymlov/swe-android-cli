@@ -13,7 +13,7 @@ extern char SWE_TMP[];
 
 ext_def(int32) swe_test_main(int32 argc, char *argv[]);
 
-JNIEXPORT jint JNICALL Java_swisseph_SweTest_swe_1test_1main(JNIEnv *, jclass, jstring, jint, jobject);
+JNIEXPORT jint JNICALL Java_swisseph_SwephExp_swe_1test_1main(JNIEnv *, jclass, jstring, jint, jobject);
 
 #ifdef __cplusplus
 }

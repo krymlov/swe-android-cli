@@ -12,22 +12,23 @@ import org.junit.runner.RunWith;
  * @version 1.0, 2024-02
  */
 @RunWith(AndroidJUnit4.class)
-public class AndroidTest {
+public class AndroidSweTest {
 
     @BeforeClass
     public static void setUp() {
-        System.out.println("AndroidTest - setUp()...");
+        System.out.println("setUp()...");
+        System.loadLibrary("swe-2.10.03");
     }
 
     @Test
     public void swe_test_main() {
         StringBuilder sout = new StringBuilder();
-        int res = SweTest.swe_test_main("TEST -testaa97", 2, sout);
+        int res = SwephExp.swe_test_main("TEST -testaa97", 2, sout);
         System.out.println("swe_test_main - done! => " + res + " => " + sout);
     }
 
     @AfterClass
     public static void tearDown() {
-        System.out.println("AndroidTest - tearDown()...");
+        System.out.println("tearDown()...");
     }
 }

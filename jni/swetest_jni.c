@@ -45,7 +45,7 @@ char SWE_TMP[1024] = "";
 #define JNI_LOG(...)  __android_log_print(ANDROID_LOG_INFO,"SWE-TEST",__VA_ARGS__)
 
 
-JNIEXPORT jint JNICALL Java_swisseph_SweTest_swe_1test_1main(JNIEnv *env, jclass swetest, jstring jargs, jint jargc, jobject sout) {
+JNIEXPORT jint JNICALL Java_swisseph_SwephExp_swe_1test_1main(JNIEnv *env, jclass swetest, jstring jargs, jint jargc, jobject sout) {
 	GET_STRING_UTF_CHARS(isCopy, jargs, cargs)
 	JNI_LOG("START: %s", cargs);
 	

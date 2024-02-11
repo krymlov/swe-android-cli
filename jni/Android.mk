@@ -1,7 +1,7 @@
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := swetest-2.10.03
+LOCAL_MODULE := swe-2.10.03
 LOCAL_LDLIBS := -llog
 
 LOCAL_LDFLAGS   += -ffunction-sections -fdata-sections -Wl,--gc-sections
