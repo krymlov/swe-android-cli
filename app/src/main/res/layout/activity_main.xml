@@ -6,32 +6,41 @@
     android:layout_margin="6dp">
 
     <EditText
-        android:id="@+id/edit_command"
+        android:id="@+id/put_command"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter exact swetest command to execute"
         android:inputType="textMultiLine"
-        android:lines="4"
-        android:maxLines="4"
+        android:lines="3"
+        android:maxLines="3"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/exec_command"
+        android:id="@+id/cls_command"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reset"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/put_command" />
+
+    <Button
+        android:id="@+id/exe_command"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Execute"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/edit_command" />
+        app:layout_constraintTop_toBottomOf="@id/put_command" />
 
     <TextView
-        android:id="@+id/res_output"
+        android:id="@+id/out_command"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:typeface="monospace"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/exec_command" />
+        app:layout_constraintTop_toBottomOf="@id/exe_command" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
