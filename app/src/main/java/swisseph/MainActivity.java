@@ -5,6 +5,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,14 +26,22 @@ public class MainActivity extends AppCompatActivity {
         Button clsCmd = findViewById(R.id.cls_command);
         Button exeCmd = findViewById(R.id.exe_command);
 
-        config = new AppConfig(getApplicationContext());
+        config = new AppConfig(getBaseContext());
         config.extractAssets(AppConfig.EPHE_PATH, config.appEpheFolder());
         config.extractAssets(AppConfig.JPL_PATH, config.appJplFolder());
 
         putCmd.setText("swetest -?");
 
         clsCmd.setOnClickListener(v -> {
-            putCmd.setText("swetest -testaa97");
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            String[] commands = getResources().getStringArray(R.array.sweTestCommands);
+            builder.setSingleChoiceItems(commands, 0, (dialog, item) -> {
+                putCmd.setText(commands[item]);
+                dialog.dismiss();
+            });
+
+            builder.setTitle("swetest examples");
+            builder.create().show();
             outCmd.setText("");
         });
 

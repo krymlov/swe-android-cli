@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="sweTestCommands">
+        <item>swetest -p2 -b1.12.1900 -n15 -s2</item>
+        <item>swetest -p2 -b1.12.1900 -n15 -s2 -fTZ -roundsec -g, -head</item>
+        <item>swetest -ps -xs433 -b1.12.1900</item>
+        <item>swetest -pf -xfAldebaran -b1.1.2000</item>
+        <item>swetest -p1 -d0 -b1.12.1900 -n10 -fPTl -head</item>
+        <item>swetest -p6 -DD -b1.12.1900 -n100 -s5 -fPTZ -head -roundmin</item>
+        <item>swetest -b5.1.2002 -p -house12.05,49.50,K -ut12:30</item>
+        <item>swetest -b1.1.2016  -g -fTlbR -p0123456789Dmte -hor -n366 -roundsec</item>
+    </string-array>
+
+</resources>

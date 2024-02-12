@@ -34,7 +34,7 @@ public class AppConfig {
     public static final String EPHE_PATH = "ephe";
     public static final String JPL_PATH = "jpl";
 
-    private final Context context;
+    final Context context;
 
     public AppConfig(Context context) {
         this.context = context;
@@ -83,7 +83,7 @@ public class AppConfig {
     }
 
     public void extractAssets(String assetsDir, File assetsDest) {
-        if (null == assetsDest || requireNonNull(assetsDest.listFiles()).length > 0) return;
+        if (null == assetsDest || assetsDir == null) return;
 
         try {
             final AssetManager assetManager = context.getAssets();
