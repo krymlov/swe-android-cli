@@ -66,11 +66,16 @@ JNIEXPORT jint JNICALL Java_swisseph_SwephExp_swe_1test_1main(JNIEnv *env, jclas
 	argv = realloc(argv, sizeof (char*) * (n_spaces+1));
 	argv[n_spaces] = 0;
 	
+	memset(SWE_TMP, 0, sizeof(SWE_TMP));
+	memset(SWE_OUT, 0, sizeof(SWE_OUT));
+	
 	int32 ret = swe_test_main(n_spaces, argv);
 	
 	free(argv);
 	RLZ_STRING_UTF_CHARS(isCopy, jargs, cargs)
 	
 	addToBuilder(env, SWE_OUT, sout);
+	JNI_LOG("%s", SWE_OUT);
+	  
     return ret;
 }
