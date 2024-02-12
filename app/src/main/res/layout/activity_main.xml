@@ -10,7 +10,7 @@
         android:id="@+id/put_command"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter exact swetest command to execute"
+        android:hint="Enter swetest command to execute"
         android:inputType="textMultiLine"
         android:lines="3"
         android:maxLines="3" />
@@ -20,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/put_command"
-        android:text="Reset" />
+        android:text="Example" />
 
     <Button
         android:id="@+id/exe_command"
