@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
+    AppConfig config;
 
     public MainActivity() {
         System.loadLibrary("swe-2.10.03");
@@ -24,22 +25,34 @@ public class MainActivity extends AppCompatActivity {
         Button clsCmd = findViewById(R.id.cls_command);
         Button exeCmd = findViewById(R.id.exe_command);
 
-        AppConfig config = new AppConfig(getApplicationContext());
-        System.out.println("Extract... EPHE files to: " + config.appEpheFolder());
+        config = new AppConfig(getApplicationContext());
         config.extractAssets(AppConfig.EPHE_PATH, config.appEpheFolder());
+        config.extractAssets(AppConfig.JPL_PATH, config.appJplFolder());
 
-        putCmd.setText("swetest -? -edir" + config.appEpheFolder().getAbsolutePath());
+        putCmd.setText("swetest -?");
 
         clsCmd.setOnClickListener(v -> {
-            putCmd.setText("swetest -testaa97 -edir" + config.appEpheFolder().getAbsolutePath());
+            putCmd.setText("swetest -testaa97");
             outCmd.setText("");
         });
 
         exeCmd.setOnClickListener(v -> {
             outCmd.setText("");
-            StringBuilder sout = new StringBuilder();
-            SwephExp.swe_test_main(putCmd.getText().toString(), sout);
+            StringBuilder sout = sweTestMain(putCmd.getText().toString());
             outCmd.setText(sout.toString());
         });
+    }
+
+    private StringBuilder sweTestMain(String command) {
+        StringBuilder args = new StringBuilder(command);
+
+        if (!command.contains("-edir")) {
+            args.append(" -edir");
+            args.append(config.appEpheFolder().getAbsolutePath());
+        }
+
+        StringBuilder sout = new StringBuilder();
+        SwephExp.swe_test_main(args.toString(), sout);
+        return sout;
     }
 }

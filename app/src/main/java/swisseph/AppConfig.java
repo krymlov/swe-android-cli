@@ -32,10 +32,16 @@ import java.io.OutputStream;
  */
 public class AppConfig {
     public static final String EPHE_PATH = "ephe";
+    public static final String JPL_PATH = "jpl";
+
     private final Context context;
 
     public AppConfig(Context context) {
         this.context = context;
+    }
+
+    public File appJplFolder() {
+        return appExternalFilesDir(null, JPL_PATH);
     }
 
     public File appEpheFolder() {
@@ -81,21 +87,22 @@ public class AppConfig {
 
         try {
             final AssetManager assetManager = context.getAssets();
-            for (String epheFile : assetManager.list(assetsDir)) {
-                File epheFileDest = new File(assetsDest, getName(epheFile));
-                String epheFilePath = concat(assetsDir, epheFile);
+            for (String assetFile : assetManager.list(assetsDir)) {
+                File assetFileDest = new File(assetsDest, getName(assetFile));
+                String assetFilePath = concat(assetsDir, assetFile);
+                if (assetFileDest.isFile()) continue;
 
-                System.out.println("Extract Asset file to: " + epheFilePath);
+                System.out.println("Extract Asset file to: " + assetFilePath);
 
-                InputStream in = assetManager.open(epheFilePath);
-                OutputStream out = new FileOutputStream(epheFileDest);
+                OutputStream out = new FileOutputStream(assetFileDest);
+                InputStream in = assetManager.open(assetFilePath);
                 IOUtils.copyLarge(in, out);
 
                 IOUtils.closeQuietly(out);
                 IOUtils.closeQuietly(in);
             }
         } catch (IOException ioex) {
-            Log.e(assetsDir, "FAILED to extract EPHE assets", ioex);
+            Log.e(assetsDir, "FAILED to extract assets", ioex);
         }
     }
 }
