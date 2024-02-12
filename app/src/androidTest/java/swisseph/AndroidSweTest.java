@@ -1,18 +1,15 @@
 package swisseph;
 
-import static android.os.Environment.DIRECTORY_MOVIES;
-
-import android.Manifest;
-import android.os.Environment;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.File;
 
 /**
  * @author Yura Krymlov
@@ -21,23 +18,22 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class AndroidSweTest {
 
-    @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule
-            .grant(Manifest.permission.READ_MEDIA_VIDEO);
-
     @BeforeClass
     public static void setUp() {
-        System.out.println("setUp()...");
+        AppConfig appConfig = new AppConfig(getInstrumentation().getTargetContext());
+        System.out.println("setUp()... EPHE files to: " + appConfig.appEpheFolder());
+        appConfig.extractAssets(AppConfig.EPHE_PATH, appConfig.appEpheFolder());
         System.loadLibrary("swe-2.10.03");
     }
 
     @Test
     public void swe_test_main() {
-        String epheFolders = Environment.getExternalStoragePublicDirectory
-                (DIRECTORY_MOVIES).getAbsolutePath() + "/ephe";
+        File epheFolder = new AppConfig(getInstrumentation()
+                .getTargetContext()).appEpheFolder();
 
         StringBuilder sout = new StringBuilder();
-        SwephExp.swe_test_main("TEST -testaa97 -edir" + epheFolders, sout);
+        SwephExp.swe_test_main("TEST -testaa97 -edir"
+                + epheFolder.getAbsolutePath(), sout);
 
         System.out.println(sout);
     }
@@ -46,4 +42,5 @@ public class AndroidSweTest {
     public static void tearDown() {
         System.out.println("tearDown()...");
     }
+
 }

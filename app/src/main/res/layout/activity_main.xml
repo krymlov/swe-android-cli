@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="6dp">
+    android:layout_margin="6dp"
+    tools:context=".MainActivity">
 
     <EditText
         android:id="@+id/put_command"
@@ -12,35 +13,33 @@
         android:hint="Enter exact swetest command to execute"
         android:inputType="textMultiLine"
         android:lines="3"
-        android:maxLines="3"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:maxLines="3" />
 
     <Button
         android:id="@+id/cls_command"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Reset"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/put_command" />
+        android:layout_below="@id/put_command"
+        android:text="Reset" />
 
     <Button
         android:id="@+id/exe_command"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Execute"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/put_command" />
+        android:layout_below="@id/put_command"
+        android:layout_alignParentRight="true"
+        android:text="Execute" />
 
-    <TextView
-        android:id="@+id/out_command"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:typeface="monospace"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/exe_command" />
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/exe_command">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/out_command"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:typeface="monospace" />
+    </ScrollView>
+
+</RelativeLayout>
