@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
 
             builder.setTitle("swetest examples");
             builder.create().show();
-            outCmd.setText("");
         });
 
         exeCmd.setOnClickListener(v -> {
