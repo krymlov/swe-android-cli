@@ -1,0 +1,79 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:defaultValue="NIL"
+        android:entries="@array/listLangNames"
+        android:entryValues="@array/listLangCodes"
+        android:icon="@drawable/ic_change_lang"
+        android:key="user_selected_language"
+        android:summary="@string/pref_menu_change_lang_summary"
+        android:title="@string/pref_menu_change_lang_title" />
+
+    <ListPreference
+        android:defaultValue="@string/default_date_format_pattern"
+        android:entries="@array/listDateFormatNames"
+        android:entryValues="@array/listDateFormatCodes"
+        android:icon="@drawable/baseline_update_24"
+        android:key="ux_dateformat"
+        android:summary="@string/pref_menu_change_datefmt_summary"
+        android:title="@string/pref_menu_change_datefmt_title" />
+
+    <ListPreference
+        android:defaultValue="-100"
+        android:entries="@array/listDarkThemeNames"
+        android:entryValues="@array/listDarkThemeCodes"
+        android:icon="@drawable/ic_light_mode"
+        android:key="user_selected_darkmode"
+        android:summary="@string/pref_menu_dark_theme_summary"
+        android:title="@string/pref_menu_dark_theme_title" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_remove_red_eye_24"
+        android:key="user_selected_simplified_style"
+        android:summary="@string/pref_menu_simplify_interface_style_summary"
+        android:title="@string/pref_menu_simplify_interface_style_title" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:enabled="true"
+        android:icon="@drawable/graha_3_class"
+        android:key="appCalculateGuru"
+        android:summary="@string/pref_menu_calculate_guru_summary"
+        android:title="@string/pref_menu_calculate_guru_title" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:enabled="true"
+        android:icon="@drawable/graha_8_class"
+        android:key="appCalculateShani"
+        android:summary="@string/pref_menu_calculate_shani_summary"
+        android:title="@string/pref_menu_calculate_shani_title" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:enabled="true"
+        android:icon="@drawable/yin_yang"
+        android:key="appCalculateRahu"
+        android:summary="@string/pref_menu_calculate_rahu_summary"
+        android:title="@string/pref_menu_calculate_rahu_title" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:enabled="true"
+        android:icon="@drawable/ic_nearest_grahan_24"
+        android:key="ux_grahan_local"
+        android:summary="@string/pref_menu_calculate_local_grahan_summary"
+        android:title="@string/pref_menu_calculate_local_grahan_title" />
+
+    <ListPreference
+        android:defaultValue="AY27"
+        android:entries="@array/listAyanamsaNames"
+        android:entryValues="@array/listAyanamsaCodes"
+        android:icon="@drawable/baseline_architecture_24"
+        android:key="ux_ayanamsa"
+        android:summary="@string/pref_menu_change_ayan_summary"
+        android:title="@string/pref_menu_change_ayan_title" />
+
+</PreferenceScreen>
