@@ -32,7 +32,7 @@ public class AndroidSweTest {
                 .getTargetContext()).appEpheFolder();
 
         StringBuilder sout = new StringBuilder();
-        SwephExp.swe_test_main("TEST -testaa97 -edir"
+        SwissephTest.swe_test_main("TEST -testaa97 -edir"
                 + epheFolder.getAbsolutePath(), sout);
 
         System.out.println(sout);

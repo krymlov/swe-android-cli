@@ -3,6 +3,10 @@ plugins {
     id 'com.android.library' version '8.2.2' apply false
 }
 
+allprojects {
+    buildDir = "T:/apps/${rootProject.name}"
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }

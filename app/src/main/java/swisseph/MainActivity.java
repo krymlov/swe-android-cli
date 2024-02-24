@@ -11,10 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
     AppConfig config;
 
-    public MainActivity() {
-        System.loadLibrary("swe-2.10.03");
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,8 +55,10 @@ public class MainActivity extends AppCompatActivity {
             args.append(config.appEpheFolder().getAbsolutePath());
         }
 
+        SwissephTest.loadSweLibrary();
         StringBuilder sout = new StringBuilder();
-        SwephExp.swe_test_main(args.toString(), sout);
+        SwissephTest.swe_test_main(args.toString(), sout);
+
         return sout;
     }
 }
