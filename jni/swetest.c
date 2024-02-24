@@ -816,6 +816,73 @@ static AS_BOOL show_file_limit = FALSE;
 # define ECL_SOL_TOTAL          6
 
 
+void swe_test_init() {
+    se_pname[0] = 0;
+    star2[0]=0;
+
+    strcpy(star, "star");
+    strcpy(sastno, "433");
+    strcpy(shyp, "1");
+
+    fmt = "PLBRS";
+    gap = " ";
+    t=0, te=0, tut=0, jut = 0, tstep = 1;
+    jmon = 0, jday = 0, jyear = 0;
+    ipl = SE_SUN, ipldiff = SE_SUN, nhouses = 12;
+    iplctr = SE_SUN;
+    spnam[0] = 0, spnam2[0] = 0, serr[0] = 0;
+    serr_save[0] = 0, serr_warn[0] = 0;
+    gregflag = SE_GREG_CAL;
+    gregflag_auto = TRUE;
+    diff_mode = 0;
+    use_dms = FALSE;
+    universal_time = FALSE;
+    universal_time_utc = FALSE;
+    round_flag = 0;
+    time_flag = 0;
+    short_output = FALSE;
+    list_hor = FALSE;
+    special_event = 0;
+    special_mode = 0;
+    do_orbital_elements = FALSE;
+    hel_using_AV = FALSE;
+    with_header = TRUE;
+    with_chart_link = FALSE;
+	
+    //static double x[6], x2[6], xequ[6], xcart[6], xcartq[6], xobl[6], xaz[6], xt[6], hpos, hpos2, hposj, armc, xsv[6];
+    hpos_meth = 0;
+    //static double geopos[10];
+    //static double attr[20], tret[20], datm[4], dobs[6];
+    iflag = 0, iflag2 = 0;              /* external flag: helio, geo... */
+
+    direction = 1;
+    direction_flag = FALSE;
+    step_in_minutes = FALSE;
+    step_in_seconds = FALSE;
+    step_in_years = FALSE;
+    step_in_months = FALSE;
+    helflag = 0;
+    tjd = 2415020.5;
+    nstep = 1, istep = 0;
+    search_flag = 0;
+    sout[0] = 0;
+    whicheph = SEFLG_SWIEPH;
+    psp = 0;
+    norefrac = 0;
+    disccenter = 0;
+    discbottom = 0;
+    hindu = 0;
+/* for test of old models only */
+    astro_models = NULL;
+    do_set_astro_models = FALSE;
+    smod[0] = 0;
+    inut = FALSE; /* for Astrodienst internal feature */
+    have_gap_parameter = FALSE;
+    use_swe_fixstar2 = FALSE;
+    output_extra_prec = FALSE;
+    show_file_limit = FALSE;
+}
+
 #define JNI_PRINTF(...) {sprintf(SWE_TMP, __VA_ARGS__);strcat(SWE_OUT,SWE_TMP);}
 #define JNI_EXIT(code) return code
 
@@ -3945,7 +4012,7 @@ static void do_printf(char *info)
 #elif __ANDROID_API__
   strcat(SWE_OUT,info);
 #else
-  fputs(info);
+    fputs(info,stdout);
 #endif
 }
 

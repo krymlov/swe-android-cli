@@ -2,6 +2,9 @@
 <resources>
 
     <string-array name="sweTestCommands">
+        <item>swetest -testaa95</item>
+        <item>swetest -testaa96</item>
+        <item>swetest -testaa97</item>
         <item>swetest -p2 -b1.12.1900 -n15 -s2</item>
         <item>swetest -p2 -b1.12.1900 -n15 -s2 -fTZ -roundsec -g, -head</item>
         <item>swetest -ps -xs433 -b1.12.1900</item>

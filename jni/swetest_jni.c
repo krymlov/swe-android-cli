@@ -76,6 +76,8 @@ JNIEXPORT jint JNICALL Java_swisseph_SwephExp_swe_1test_1main(JNIEnv *env, jclas
 	
 	addToBuilder(env, SWE_OUT, sout);
 	JNI_LOG("%s", SWE_OUT);
-	  
+	
+    swe_test_init();
+
     return ret;
 }
