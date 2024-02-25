@@ -11,11 +11,10 @@
             android:id="@+id/cli_output"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
             android:scrollbars="vertical|horizontal"
             android:scrollHorizontally="true"
             android:textColor="@color/black"
+            android:textIsSelectable="true"
             android:typeface="monospace" />
     </ScrollView>
 
