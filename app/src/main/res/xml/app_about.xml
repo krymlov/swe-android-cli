@@ -1,0 +1,47 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:icon="@drawable/swisseph"
+        android:summary="Swiss Ephemeris (SE) is a software toolbox for programmers of astrological software (on GitHub)."
+        android:title="About the Swiss Ephemeris">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://github.com/aloistr/swisseph" />
+    </Preference>
+
+    <Preference
+        android:icon="@drawable/swisseph"
+        android:summary="The SWISS EPHEMERIS is the high precision ephemeris developed by Astrodienst, largely based upon the DExxx ephemerides from NASA's JPL . The original release in 1997 was based on the DE405/406 ephemeris. Since release 2.00 in February 2014, it is based on the DE431 ephemeris released by JPL in September 2013."
+        android:title="www.astro.com">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://www.astro.com/swisseph/swephinfo_e.htm" />
+    </Preference>
+
+    <Preference
+        android:icon="@drawable/swisseph"
+        android:summary="The official Swiss Ephemeris documentation"
+        android:title="Swiss Ephemeris documentation">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://www.astro.com/ftp/swisseph/doc/" />
+    </Preference>
+
+    <Preference
+        android:icon="@drawable/swisseph"
+        android:summary="We welcome any suggestions and comments you may have about the Swiss Ephemeris"
+        android:title="Please email to swisseph@groups.io">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="mailto:swisseph@groups.io" />
+    </Preference>
+
+    <Preference
+        android:icon="@drawable/swisseph"
+        android:summary="If you want your feedback distributed to all members of the swisseph mailing list"
+        android:title="Please subscribe to swisseph@groups.io">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://groups.io/g/swisseph" />
+    </Preference>
+
+</PreferenceScreen>

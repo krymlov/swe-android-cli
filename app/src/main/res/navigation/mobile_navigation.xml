@@ -14,12 +14,11 @@
     <fragment
         android:id="@+id/nav_help"
         android:name="org.swisseph.appui.help.HelpFragment"
-        android:label="@string/menu_help"
+        android:label="@string/help_label"
         tools:layout="@layout/fragment_help" />
 
-    <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="org.swisseph.appui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+    <activity
+        android:id="@+id/nav_about"
+        android:name="org.swisseph.AboutActivity"
+        android:label="@string/menu_about" />
 </navigation>
