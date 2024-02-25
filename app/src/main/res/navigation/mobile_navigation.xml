@@ -3,19 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_help">
+    app:startDestination="@+id/nav_cli">
+
+    <fragment
+        android:id="@+id/nav_cli"
+        android:name="org.swisseph.appui.cli.CliFragment"
+        android:label="@string/cli_label"
+        tools:layout="@layout/fragment_cli" />
 
     <fragment
         android:id="@+id/nav_help"
         android:name="org.swisseph.appui.help.HelpFragment"
         android:label="@string/menu_help"
         tools:layout="@layout/fragment_help" />
-
-    <fragment
-        android:id="@+id/nav_gallery"
-        android:name="org.swisseph.appui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
 
     <fragment
         android:id="@+id/nav_slideshow"
