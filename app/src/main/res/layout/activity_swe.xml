@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="6dp"
+    tools:context=".MainActivity">
+
+    <EditText
+        android:id="@+id/put_command"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter swetest command to execute"
+        android:inputType="textMultiLine"
+        android:lines="3"
+        android:maxLines="3" />
+
+    <Button
+        android:id="@+id/cls_command"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/put_command"
+        android:text="Example" />
+
+    <Button
+        android:id="@+id/exe_command"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/put_command"
+        android:layout_alignParentRight="true"
+        android:text="Execute" />
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/exe_command">
+
+        <TextView
+            android:id="@+id/out_command"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textColor="@color/black"
+            android:typeface="monospace" />
+    </ScrollView>
+
+</RelativeLayout>
