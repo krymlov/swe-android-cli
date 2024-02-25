@@ -18,7 +18,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/cli_input"
-        android:text="Example" />
+        android:text="Example"
+        android:textColor="@color/white" />
 
     <Button
         android:id="@+id/exe_cli_input"
@@ -26,7 +27,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/cli_input"
         android:layout_alignParentRight="true"
-        android:text="Execute" />
+        android:text="Execute"
+        android:textColor="@color/white" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -39,7 +41,7 @@
             android:layout_height="wrap_content"
             android:scrollbars="vertical|horizontal"
             android:scrollHorizontally="true"
-            android:textColor="@color/black"
+            android:textColor="?android:textColorPrimary"
             android:textIsSelectable="true"
             android:typeface="monospace" />
     </ScrollView>

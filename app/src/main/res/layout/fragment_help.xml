@@ -13,7 +13,7 @@
             android:layout_height="wrap_content"
             android:scrollbars="vertical|horizontal"
             android:scrollHorizontally="true"
-            android:textColor="@color/black"
+            android:textColor="?android:textColorPrimary"
             android:textIsSelectable="true"
             android:typeface="monospace" />
     </ScrollView>
