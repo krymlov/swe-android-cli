@@ -1,19 +1,20 @@
-package org.swisseph.appui.home;
+package org.swisseph.appui.help;
+
+import static swisseph.SwissephTest.cli;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class HomeViewModel extends ViewModel {
-
+public class HelpViewModel extends ViewModel {
     private final MutableLiveData<String> mText;
 
-    public HomeViewModel() {
+    public HelpViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is home fragment");
+        mText.setValue(cli().help().toString());
     }
 
-    public LiveData<String> getText() {
+    LiveData<String> getText() {
         return mText;
     }
 }
