@@ -7,7 +7,7 @@
     tools:context=".MainActivity">
 
     <EditText
-        android:id="@+id/put_command"
+        android:id="@+id/cli_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter swetest command to execute"
@@ -16,24 +16,24 @@
         android:maxLines="3" />
 
     <Button
-        android:id="@+id/cls_command"
+        android:id="@+id/cls_cli_input"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/put_command"
+        android:layout_below="@id/cli_input"
         android:text="Example" />
 
     <Button
-        android:id="@+id/exe_command"
+        android:id="@+id/exe_cli_input"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/put_command"
+        android:layout_below="@id/cli_input"
         android:layout_alignParentRight="true"
         android:text="Execute" />
 
     <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/exe_command">
+        android:layout_below="@id/exe_cli_input">
 
         <TextView
             android:id="@+id/out_command"
