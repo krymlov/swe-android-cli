@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name">swe-cli</string>
-    <string name="nav_header">SWE Command line interface</string>
+    <string name="app_name">swisseph.cli</string>
+    <string name="nav_header">SWISSEPH.CLI</string>
 
     <string name="menu_cli">CLI</string>
-    <string name="cli_label">SWE-CLI</string>
+    <string name="cli_label">SWE Command line interface</string>
 
     <string name="menu_help">Help</string>
     <string name="help_label">Help (swetest -h)</string>
