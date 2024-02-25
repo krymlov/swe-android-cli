@@ -11,7 +11,7 @@ android {
         targetSdk 34
         versionCode 1
         versionName "2.10.03"
-        applicationId "org.swisseph.test"
+        applicationId "org.swe.cli"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
