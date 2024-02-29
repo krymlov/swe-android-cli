@@ -1,6 +1,6 @@
-# swe-android-test
+# swe-android-cli
 
-swe-android-test demonstrates the use of JNI interface against:
+swe-android-cli demonstrates the use of JNI interface against:
 - https://github.com/aloistr/swisseph/blob/master/swetest.c
 
 # Swiss Ephemeris License
