@@ -11,8 +11,6 @@ import static org.apache.commons.io.FilenameUtils.concat;
 import static org.apache.commons.io.FilenameUtils.getName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import static java.util.Objects.requireNonNull;
-
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.Environment;
@@ -32,16 +30,11 @@ import java.io.OutputStream;
  */
 public class AppConfig {
     public static final String EPHE_PATH = "ephe";
-    public static final String JPL_PATH = "jpl";
 
     final Context context;
 
     public AppConfig(Context context) {
         this.context = context;
-    }
-
-    public File appJplFolder() {
-        return appExternalFilesDir(null, JPL_PATH);
     }
 
     public File appEpheFolder() {

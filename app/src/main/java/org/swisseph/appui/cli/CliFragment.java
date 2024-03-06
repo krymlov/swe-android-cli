@@ -1,7 +1,6 @@
 package org.swisseph.appui.cli;
 
 import static swisseph.AppConfig.EPHE_PATH;
-import static swisseph.AppConfig.JPL_PATH;
 
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -35,7 +34,6 @@ public class CliFragment extends Fragment {
 
         config = new AppConfig(getContext());
         config.extractAssets(EPHE_PATH, config.appEpheFolder());
-        config.extractAssets(JPL_PATH, config.appJplFolder());
 
         Button exeCliInput = binding.exeCliInput;
         Button clsCliInput = binding.clsCliInput;
