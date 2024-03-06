@@ -85,8 +85,6 @@ public class AppConfig {
                 String assetFilePath = concat(assetsDir, assetFile);
                 if (assetFileDest.isFile()) continue;
 
-                System.out.println("Extract Asset file to: " + assetFilePath);
-
                 OutputStream out = new FileOutputStream(assetFileDest);
                 InputStream in = assetManager.open(assetFilePath);
                 IOUtils.copyLarge(in, out);

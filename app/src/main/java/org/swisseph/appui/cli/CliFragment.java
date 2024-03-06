@@ -147,11 +147,11 @@ public class CliFragment extends Fragment {
                     IOUtils.closeQuietly(epheIn);
                     IOUtils.closeQuietly(out);
 
-                    Toast.makeText(getContext(), "Imported!", LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "OK! Imported", LENGTH_LONG).show();
                 }
             } catch (Exception ex) {
-                Log.e("swisseph.cli", "Failed to import EPH file: " + uri, ex);
-                Toast.makeText(getContext(), "Failed to import!", LENGTH_LONG).show();
+                Log.e("swisseph.cli", "FAILED to import: " + uri, ex);
+                Toast.makeText(getContext(), "FAILED to import!", LENGTH_LONG).show();
             }
         }
     }

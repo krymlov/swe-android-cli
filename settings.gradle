@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "swe-cli"
+rootProject.name = "swisseph.cli"
 include ':app'
