@@ -1,14 +1,13 @@
 <resources>
     <string name="app_name">SwissEph CLI</string>
     <string name="nav_header">SWISSEPH.CLI</string>
+    <string name="menu_about">About</string>
 
     <string name="menu_cli">CLI</string>
-    <string name="cli_label">SWE Command line interface</string>
+    <string name="cli_label">SE Command line interface</string>
 
     <string name="menu_help">Help</string>
     <string name="help_label">Help (swetest -h)</string>
 
-    <string name="menu_about">About</string>
-
-    <string name="title_action_import">Import EPH file</string>
+    <string name="title_action_import">Import ephemeris file</string>
 </resources>

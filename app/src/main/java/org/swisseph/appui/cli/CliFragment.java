@@ -53,6 +53,7 @@ import swisseph.R;
 import swisseph.databinding.FragmentCliBinding;
 
 public class CliFragment extends Fragment {
+    public static final String EPHE_FILES_CMD = "ephemeris files";
     Ephemeris ephemerisOption = moshier;
     FragmentCliBinding binding;
     AppConfig config;
@@ -78,7 +79,7 @@ public class CliFragment extends Fragment {
         Button clsCliInput = binding.clsCliInput;
 
         EditText cliInput = binding.cliInput;
-        cliInput.setText("swetest -info");
+        cliInput.setText(EPHE_FILES_CMD);
 
         clsCliInput.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -112,7 +113,7 @@ public class CliFragment extends Fragment {
             args.append(epheFolder.getAbsolutePath());
         }
 
-        if (command.contains("-info")) {
+        if (command.contains(EPHE_FILES_CMD)) {
             File[] files = epheFolder.listFiles();
             if (null == files) return sout;
 

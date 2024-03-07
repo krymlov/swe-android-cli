@@ -2,7 +2,7 @@
 <resources>
 
     <string-array name="sweTestCommands">
-        <item>swetest -info</item>
+        <item>ephemeris files</item>
         <item>swetest -testaa95</item>
         <item>swetest -testaa96</item>
         <item>swetest -testaa97</item>
