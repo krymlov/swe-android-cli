@@ -2,6 +2,8 @@ package org.swisseph.appui.cli;
 
 import static android.content.Intent.ACTION_OPEN_DOCUMENT;
 import static android.widget.Toast.LENGTH_LONG;
+import static org.swisseph.MainActivity.ALLOW_IMPORT_DATA;
+import static org.swisseph.MainActivity.SWE_CLI;
 import static swisseph.AppConfig.EPHE_PATH;
 
 import android.app.Activity;
@@ -45,7 +47,6 @@ import swisseph.SwissephTest;
 import swisseph.databinding.FragmentCliBinding;
 
 public class CliFragment extends Fragment {
-    private static final int ALLOW_IMPORT_DATA = 101;
     private FragmentCliBinding binding;
     private AppConfig config;
 
@@ -141,9 +142,9 @@ public class CliFragment extends Fragment {
             Uri uri = resultData.getData();
             File assetsDest = config.appEpheFolder();
             ContentResolver contentResolver = getContext().getContentResolver();
+            String epheFileName = resolveFileName(uri, contentResolver);
 
             try (InputStream epheIn = contentResolver.openInputStream(uri)) {
-                String epheFileName = resolveFileName(uri, contentResolver);
                 File assetFileDest = new File(assetsDest, epheFileName);
 
                 if (assetFileDest.isFile()) {
@@ -154,11 +155,13 @@ public class CliFragment extends Fragment {
                     IOUtils.closeQuietly(epheIn);
                     IOUtils.closeQuietly(out);
 
-                    Toast.makeText(getContext(), "OK! Imported", LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Imported: "
+                            + epheFileName, LENGTH_LONG).show();
                 }
             } catch (Exception ex) {
-                Log.e("swisseph.cli", "FAILED to import: " + uri, ex);
-                Toast.makeText(getContext(), "FAILED to import: " + ex.getMessage(), LENGTH_LONG).show();
+                Log.e(SWE_CLI, "FAILED to import: " + epheFileName, ex);
+                Toast.makeText(getContext(), "FAILED to import: "
+                        + ex.getMessage(), LENGTH_LONG).show();
             }
         }
     }
@@ -174,7 +177,7 @@ public class CliFragment extends Fragment {
                 return FilenameUtils.getName(path);
             }
         } catch (Exception ex) {
-            Log.e("swisseph.cli", "FAILED to import: " + uri, ex);
+            Log.e(SWE_CLI, "FAILED to import: " + uri, ex);
         }
 
         return FilenameUtils.getName(uri.getLastPathSegment());

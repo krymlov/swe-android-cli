@@ -16,6 +16,8 @@ import swisseph.R;
 import swisseph.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
+    public static final int ALLOW_IMPORT_DATA = 101;
+    public static final String SWE_CLI = "swisseph.cli";
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
