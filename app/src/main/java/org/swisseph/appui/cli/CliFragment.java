@@ -4,6 +4,9 @@ import static android.content.Intent.ACTION_OPEN_DOCUMENT;
 import static android.widget.Toast.LENGTH_LONG;
 import static org.swisseph.MainActivity.ALLOW_IMPORT_DATA;
 import static org.swisseph.MainActivity.SWE_CLI;
+import static org.swisseph.appui.cli.Ephemeris.jpl;
+import static org.swisseph.appui.cli.Ephemeris.moshier;
+import static org.swisseph.appui.cli.Ephemeris.swiss;
 import static swisseph.AppConfig.EPHE_PATH;
 import static swisseph.SwissephTest.swe_test_main;
 
@@ -50,18 +53,14 @@ import swisseph.R;
 import swisseph.databinding.FragmentCliBinding;
 
 public class CliFragment extends Fragment {
-    private FragmentCliBinding binding;
-    private AppConfig config;
+    Ephemeris ephemerisOption = moshier;
+    FragmentCliBinding binding;
+    AppConfig config;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.main, menu);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -108,6 +107,7 @@ public class CliFragment extends Fragment {
         File epheFolder = config.appEpheFolder();
 
         if (!command.contains("-edir")) {
+            args.append(" ").append(ephemerisOption.option);
             args.append(" -edir");
             args.append(epheFolder.getAbsolutePath());
         }
@@ -132,11 +132,40 @@ public class CliFragment extends Fragment {
     }
 
     @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.main, menu);
+
+        switch (ephemerisOption) {
+            case moshier:
+                menu.findItem(R.id.menu_action_ephe_mos).setChecked(true);
+                break;
+            case swiss:
+                menu.findItem(R.id.menu_action_ephe_swe).setChecked(true);
+                break;
+            case jpl:
+                menu.findItem(R.id.menu_action_ephe_jpl).setChecked(true);
+                break;
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         final int itemId = item.getItemId();
 
         if (itemId == R.id.menu_action_import) {
             openDirToImportEphe();
+            return true;
+        } else if (itemId == R.id.menu_action_ephe_mos) {
+            ephemerisOption = moshier;
+            item.setChecked(true);
+            return true;
+        } else if (itemId == R.id.menu_action_ephe_swe) {
+            ephemerisOption = swiss;
+            item.setChecked(true);
+            return true;
+        } else if (itemId == R.id.menu_action_ephe_jpl) {
+            ephemerisOption = jpl;
+            item.setChecked(true);
             return true;
         }
 

@@ -6,4 +6,21 @@
         android:orderInCategory="100"
         android:title="@string/title_action_import"
         app:showAsAction="never" />
+
+    <group
+        android:id="@+id/menu_action_ephe"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu_action_ephe_mos"
+            android:title="moshier ephemeris"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/menu_action_ephe_swe"
+            android:title="swiss ephemeris"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/menu_action_ephe_jpl"
+            android:title="jpl ephemeris"
+            app:showAsAction="never" />
+    </group>
 </menu>
