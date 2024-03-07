@@ -38,7 +38,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 
 import swisseph.AppConfig;
 import swisseph.R;
@@ -164,14 +163,18 @@ public class CliFragment extends Fragment {
         }
     }
 
-    private String resolveFileName(Uri uri, ContentResolver contentResolver) throws Exception {
-        ParcelFileDescriptor fileDescriptor = contentResolver.openFileDescriptor(uri, "r");
-        Object fd = MethodUtils.invokeMethod(fileDescriptor.getFileDescriptor(), "getInt$");
-        String path = Os.readlink("/proc/self/fd/" + fd);
+    private String resolveFileName(Uri uri, ContentResolver contentResolver) {
+        try {
+            ParcelFileDescriptor fileDescriptor = contentResolver.openFileDescriptor(uri, "r");
+            Object fd = MethodUtils.invokeMethod(fileDescriptor.getFileDescriptor(), "getInt$");
+            String path = Os.readlink("/proc/self/fd/" + fd);
 
-        if (OsConstants.S_ISREG(Os.stat(path).st_mode) ||
-                OsConstants.S_ISCHR(Os.stat(path).st_mode)) {
-            return FilenameUtils.getName(path);
+            if (OsConstants.S_ISREG(Os.stat(path).st_mode) ||
+                    OsConstants.S_ISCHR(Os.stat(path).st_mode)) {
+                return FilenameUtils.getName(path);
+            }
+        } catch (Exception ex) {
+            Log.e("swisseph.cli", "FAILED to import: " + uri, ex);
         }
 
         return FilenameUtils.getName(uri.getLastPathSegment());
