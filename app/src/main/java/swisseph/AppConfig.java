@@ -37,6 +37,10 @@ public class AppConfig {
         this.context = context;
     }
 
+    public Context getContext() {
+        return context;
+    }
+
     public File appEpheFolder() {
         return appExternalFilesDir(null, EPHE_PATH);
     }

@@ -2,9 +2,11 @@
 <resources>
 
     <string-array name="sweTestCommands">
+        <item>swetest -info</item>
         <item>swetest -testaa95</item>
         <item>swetest -testaa96</item>
         <item>swetest -testaa97</item>
+        <item>swetest -b1.1.1900</item>
         <item>swetest -p2 -b1.12.1900 -n15 -s2</item>
         <item>swetest -p2 -b1.12.1900 -n15 -s2 -fTZ -roundsec -g, -head</item>
         <item>swetest -ps -xs433 -b1.12.1900</item>
@@ -16,8 +18,8 @@
         <item>swetest -b1.1.17000 -n1 -s1 -fPlbRFN -p1C234 -ejpl -ut00:00:00 -g -hel -true</item>
         <item>swetest -b15.08.1947 -ut10:30 -fPl -sid27 -house81.83,25.95,P</item>
         <item>swetest -b15.08.1947 -ut10:30 -fPl -sid1 -house81.83,25.95,P</item>
-        <item>swetest -b25.2.2024 -sid1 -pb -nonut -fPTL</item>
-        <item>swetest -b25.2.2024 -sid1 -pb -fPTL</item>
+        <item>swetest -b29.2.2024 -sid1 -pb -nonut -fPTL</item>
+        <item>swetest -b29.2.2024 -sid1 -pb -fPTL</item>
     </string-array>
 
 </resources>

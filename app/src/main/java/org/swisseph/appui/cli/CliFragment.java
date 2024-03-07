@@ -5,11 +5,14 @@ import static android.widget.Toast.LENGTH_LONG;
 import static org.swisseph.MainActivity.ALLOW_IMPORT_DATA;
 import static org.swisseph.MainActivity.SWE_CLI;
 import static swisseph.AppConfig.EPHE_PATH;
+import static swisseph.SwissephTest.swe_test_main;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.system.Os;
@@ -40,10 +43,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
 
 import swisseph.AppConfig;
 import swisseph.R;
-import swisseph.SwissephTest;
 import swisseph.databinding.FragmentCliBinding;
 
 public class CliFragment extends Fragment {
@@ -76,7 +79,7 @@ public class CliFragment extends Fragment {
         Button clsCliInput = binding.clsCliInput;
 
         EditText cliInput = binding.cliInput;
-        cliInput.setText("swetest -?");
+        cliInput.setText("swetest -info");
 
         clsCliInput.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -101,14 +104,29 @@ public class CliFragment extends Fragment {
 
     private StringBuilder sweTestMain(String command) {
         StringBuilder args = new StringBuilder(command);
+        StringBuilder sout = new StringBuilder();
+        File epheFolder = config.appEpheFolder();
 
         if (!command.contains("-edir")) {
             args.append(" -edir");
-            args.append(config.appEpheFolder().getAbsolutePath());
+            args.append(epheFolder.getAbsolutePath());
         }
 
-        StringBuilder sout = new StringBuilder();
-        SwissephTest.swe_test_main(args.toString(), sout);
+        if (command.contains("-info")) {
+            File[] files = epheFolder.listFiles();
+            if (null == files) return sout;
+
+            for (File file : files) {
+                sout.append('\n');
+                sout.append(new Date(file.lastModified()).toInstant());
+                sout.append("\t\t").append(file.getName());
+                sout.append("\n\t\t").append(file.length());
+            }
+
+            return sout;
+        }
+
+        swe_test_main(args.toString(), sout);
 
         return sout;
     }
@@ -138,50 +156,77 @@ public class CliFragment extends Fragment {
         if (resultData == null) return;
 
         if (requestCode == ALLOW_IMPORT_DATA && resultCode == Activity.RESULT_OK) {
-            // The result data contains a URI for the document or directory that the user selected.
-            Uri uri = resultData.getData();
+            new CopyEpheFileTask(resultData.getData(), config).execute();
+        }
+    }
+
+    /**
+     * CopyEpheFileTask
+     */
+    static final class CopyEpheFileTask extends AsyncTask<Void, Void, Void> {
+        private final AppConfig config;
+        private String toastText;
+        private final Uri uri;
+
+        CopyEpheFileTask(Uri uri, AppConfig config) {
+            toastText = "FAILED to init...";
+            this.config = config;
+            this.uri = uri;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Context context = config.getContext();
             File assetsDest = config.appEpheFolder();
-            ContentResolver contentResolver = getContext().getContentResolver();
+
+            toastText = "FAILED to start...";
+            ContentResolver contentResolver = context.getContentResolver();
             String epheFileName = resolveFileName(uri, contentResolver);
+            toastText = "FAILED to import: " + epheFileName;
 
             try (InputStream epheIn = contentResolver.openInputStream(uri)) {
                 File assetFileDest = new File(assetsDest, epheFileName);
 
                 if (assetFileDest.isFile()) {
-                    Toast.makeText(getContext(), "Already imported!", LENGTH_LONG).show();
+                    toastText = "ALREADY imported: " + epheFileName;
                 } else {
                     OutputStream out = new FileOutputStream(assetFileDest);
                     IOUtils.copyLarge(epheIn, out);
                     IOUtils.closeQuietly(epheIn);
                     IOUtils.closeQuietly(out);
-
-                    Toast.makeText(getContext(), "Imported: "
-                            + epheFileName, LENGTH_LONG).show();
+                    toastText = "IMPORTED: " + epheFileName;
                 }
             } catch (Exception ex) {
                 Log.e(SWE_CLI, "FAILED to import: " + epheFileName, ex);
-                Toast.makeText(getContext(), "FAILED to import: "
-                        + ex.getMessage(), LENGTH_LONG).show();
+                toastText = "FAILED to import: " + ex.getMessage();
             }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            Toast.makeText(config.getContext(), toastText, LENGTH_LONG).show();
+        }
+
+        private static String resolveFileName(Uri uri, ContentResolver contentResolver) {
+            try {
+                ParcelFileDescriptor fileDescriptor = contentResolver.openFileDescriptor(uri, "r");
+                Object fd = MethodUtils.invokeMethod(fileDescriptor.getFileDescriptor(), "getInt$");
+                String path = Os.readlink("/proc/self/fd/" + fd);
+
+                if (OsConstants.S_ISREG(Os.stat(path).st_mode) ||
+                        OsConstants.S_ISCHR(Os.stat(path).st_mode)) {
+                    return FilenameUtils.getName(path);
+                }
+            } catch (Exception ex) {
+                Log.e(SWE_CLI, "FAILED to import: " + uri, ex);
+            }
+
+            return FilenameUtils.getName(uri.getLastPathSegment());
         }
     }
 
-    private String resolveFileName(Uri uri, ContentResolver contentResolver) {
-        try {
-            ParcelFileDescriptor fileDescriptor = contentResolver.openFileDescriptor(uri, "r");
-            Object fd = MethodUtils.invokeMethod(fileDescriptor.getFileDescriptor(), "getInt$");
-            String path = Os.readlink("/proc/self/fd/" + fd);
-
-            if (OsConstants.S_ISREG(Os.stat(path).st_mode) ||
-                    OsConstants.S_ISCHR(Os.stat(path).st_mode)) {
-                return FilenameUtils.getName(path);
-            }
-        } catch (Exception ex) {
-            Log.e(SWE_CLI, "FAILED to import: " + uri, ex);
-        }
-
-        return FilenameUtils.getName(uri.getLastPathSegment());
-    }
 
     @Override
     public void onDestroyView() {
