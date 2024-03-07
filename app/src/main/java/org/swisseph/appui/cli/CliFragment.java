@@ -5,9 +5,13 @@ import static android.widget.Toast.LENGTH_LONG;
 import static swisseph.AppConfig.EPHE_PATH;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
+import android.system.Os;
+import android.system.OsConstants;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,11 +32,13 @@ import androidx.fragment.app.Fragment;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 
 import swisseph.AppConfig;
 import swisseph.R;
@@ -135,8 +141,10 @@ public class CliFragment extends Fragment {
             // The result data contains a URI for the document or directory that the user selected.
             Uri uri = resultData.getData();
             File assetsDest = config.appEpheFolder();
-            try (InputStream epheIn = getContext().getContentResolver().openInputStream(uri)) {
-                String epheFileName = FilenameUtils.getName(uri.getLastPathSegment());
+            ContentResolver contentResolver = getContext().getContentResolver();
+
+            try (InputStream epheIn = contentResolver.openInputStream(uri)) {
+                String epheFileName = resolveFileName(uri, contentResolver);
                 File assetFileDest = new File(assetsDest, epheFileName);
 
                 if (assetFileDest.isFile()) {
@@ -151,9 +159,22 @@ public class CliFragment extends Fragment {
                 }
             } catch (Exception ex) {
                 Log.e("swisseph.cli", "FAILED to import: " + uri, ex);
-                Toast.makeText(getContext(), "FAILED to import!", LENGTH_LONG).show();
+                Toast.makeText(getContext(), "FAILED to import: " + ex.getMessage(), LENGTH_LONG).show();
             }
         }
+    }
+
+    private String resolveFileName(Uri uri, ContentResolver contentResolver) throws Exception {
+        ParcelFileDescriptor fileDescriptor = contentResolver.openFileDescriptor(uri, "r");
+        Object fd = MethodUtils.invokeMethod(fileDescriptor.getFileDescriptor(), "getInt$");
+        String path = Os.readlink("/proc/self/fd/" + fd);
+
+        if (OsConstants.S_ISREG(Os.stat(path).st_mode) ||
+                OsConstants.S_ISCHR(Os.stat(path).st_mode)) {
+            return FilenameUtils.getName(path);
+        }
+
+        return FilenameUtils.getName(uri.getLastPathSegment());
     }
 
     @Override
