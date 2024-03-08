@@ -194,10 +194,10 @@ public class CliFragment extends Fragment {
      */
     static final class CopyEpheFileTask extends AsyncTask<Void, Void, Void> {
         StringBuilder sout = new StringBuilder();
-        final TextView cliOutput;
-        final AppConfig config;
+        TextView cliOutput;
+        AppConfig config;
         String toastText;
-        final Uri uri;
+        Uri uri;
 
         CopyEpheFileTask(Uri uri, TextView cliOutput, AppConfig config) {
             this.cliOutput = cliOutput;
@@ -234,7 +234,7 @@ public class CliFragment extends Fragment {
                     OutputStream out = new FileOutputStream(assetFileDest);
 
                     activity.runOnUiThread(() -> {
-                        sout.append("\nThe file is being copied ...");
+                        sout.append("\nThe file is being processing ...");
                         cliOutput.setText(sout.toString());
                     });
 
@@ -258,7 +258,12 @@ public class CliFragment extends Fragment {
                 cliOutput.setText(sout.toString());
             });
 
-            Toast.makeText(config.getActivity(), toastText, LENGTH_LONG).show();
+            Toast.makeText(config.getActivity(),
+                    toastText, LENGTH_LONG).show();
+
+            cliOutput = null;
+            config = null;
+            sout = null;
         }
 
         private static String resolveFileName(Uri uri, ContentResolver contentResolver) {
