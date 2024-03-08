@@ -53,9 +53,9 @@ import swisseph.R;
 import swisseph.databinding.FragmentCliBinding;
 
 public class CliFragment extends Fragment {
-    public static final String EPHE_FILES_CMD = "ephemeris files";
     Ephemeris ephemerisOption = moshier;
     FragmentCliBinding binding;
+    String listEpheFilesCmd;
     AppConfig config;
 
     @Override
@@ -66,6 +66,7 @@ public class CliFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentCliBinding.inflate(inflater, container, false);
+        listEpheFilesCmd = getString(R.string.list_ephemeris_files);
         View root = binding.getRoot();
 
         TextView cliOutput = binding.cliOutput;
@@ -79,7 +80,7 @@ public class CliFragment extends Fragment {
         Button clsCliInput = binding.clsCliInput;
 
         EditText cliInput = binding.cliInput;
-        cliInput.setText(EPHE_FILES_CMD);
+        cliInput.setText(listEpheFilesCmd);
 
         clsCliInput.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -113,15 +114,14 @@ public class CliFragment extends Fragment {
             args.append(epheFolder.getAbsolutePath());
         }
 
-        if (command.contains(EPHE_FILES_CMD)) {
+        if (command.contains(listEpheFilesCmd)) {
             File[] files = epheFolder.listFiles();
             if (null == files) return sout;
 
+            sout.append('\n').append(epheFolder.getAbsolutePath());
             for (File file : files) {
-                sout.append('\n');
-                sout.append(new Date(file.lastModified()).toInstant());
-                sout.append("\t\t").append(file.getName());
-                sout.append("\n\t\t").append(file.length());
+                sout.append("\n\n").append(new Date(file.lastModified()).toInstant());
+                sout.append("\t\t").append(file.getName()).append("\n\t\t").append(file.length());
             }
 
             return sout;

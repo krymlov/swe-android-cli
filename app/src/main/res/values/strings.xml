@@ -9,5 +9,6 @@
     <string name="menu_help">Help</string>
     <string name="help_label">Help (swetest -h)</string>
 
+    <string name="list_ephemeris_files">list ephemeris files</string>
     <string name="title_action_import">Import ephemeris file</string>
 </resources>
