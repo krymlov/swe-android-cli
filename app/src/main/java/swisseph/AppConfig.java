@@ -11,6 +11,7 @@ import static org.apache.commons.io.FilenameUtils.concat;
 import static org.apache.commons.io.FilenameUtils.getName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.Environment;
@@ -28,17 +29,17 @@ import java.io.OutputStream;
  * @author Yura Krymlov
  * @version 1.0, 2018-01
  */
-public class AppConfig {
+public final class AppConfig {
     public static final String EPHE_PATH = "ephe";
 
-    final Context context;
+    final Activity activity;
 
-    public AppConfig(Context context) {
-        this.context = context;
+    public AppConfig(Activity activity) {
+        this.activity = activity;
     }
 
-    public Context getContext() {
-        return context;
+    public Activity getActivity() {
+        return activity;
     }
 
     public File appEpheFolder() {
@@ -72,7 +73,7 @@ public class AppConfig {
     }
 
     private File appExternalFilesDir(String type, String folderName) {
-        File filesDir = context.getExternalFilesDir(type);
+        File filesDir = activity.getExternalFilesDir(type);
         if (null == filesDir) filesDir = appHomeSubFolder(type, false);
         if (!isBlank(folderName)) filesDir = new File(filesDir, folderName);
         if (!filesDir.exists()) filesDir.mkdirs();
@@ -83,7 +84,7 @@ public class AppConfig {
         if (null == assetsDest || assetsDir == null) return;
 
         try {
-            final AssetManager assetManager = context.getAssets();
+            final AssetManager assetManager = activity.getAssets();
             for (String assetFile : assetManager.list(assetsDir)) {
                 File assetFileDest = new File(assetsDest, getName(assetFile));
                 String assetFilePath = concat(assetsDir, assetFile);

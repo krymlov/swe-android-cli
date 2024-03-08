@@ -12,7 +12,6 @@ import static swisseph.SwissephTest.swe_test_main;
 
 import android.app.Activity;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -73,7 +72,7 @@ public class CliFragment extends Fragment {
         cliOutput.setMovementMethod(new ScrollingMovementMethod());
         cliOutput.setHorizontallyScrolling(true);
 
-        config = new AppConfig(getContext());
+        config = new AppConfig(getActivity());
         config.extractAssets(EPHE_PATH, config.appEpheFolder());
 
         Button exeCliInput = binding.exeCliInput;
@@ -186,7 +185,7 @@ public class CliFragment extends Fragment {
         if (resultData == null) return;
 
         if (requestCode == ALLOW_IMPORT_DATA && resultCode == Activity.RESULT_OK) {
-            new CopyEpheFileTask(resultData.getData(), config).execute();
+            new CopyEpheFileTask(resultData.getData(), binding.cliOutput, config).execute();
         }
     }
 
@@ -194,41 +193,59 @@ public class CliFragment extends Fragment {
      * CopyEpheFileTask
      */
     static final class CopyEpheFileTask extends AsyncTask<Void, Void, Void> {
-        private final AppConfig config;
-        private String toastText;
-        private final Uri uri;
+        StringBuilder sout = new StringBuilder();
+        final TextView cliOutput;
+        final AppConfig config;
+        String toastText;
+        final Uri uri;
 
-        CopyEpheFileTask(Uri uri, AppConfig config) {
-            toastText = "FAILED to init...";
+        CopyEpheFileTask(Uri uri, TextView cliOutput, AppConfig config) {
+            this.cliOutput = cliOutput;
+            toastText = "Failed to init...";
             this.config = config;
             this.uri = uri;
+
+            sout.append("Started to copy... ").append(uri);
+            cliOutput.setText(sout.toString());
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
-            Context context = config.getContext();
+            Activity activity = config.getActivity();
             File assetsDest = config.appEpheFolder();
 
-            toastText = "FAILED to start...";
-            ContentResolver contentResolver = context.getContentResolver();
+            toastText = "Failed to start...";
+            ContentResolver contentResolver = activity.getContentResolver();
             String epheFileName = resolveFileName(uri, contentResolver);
-            toastText = "FAILED to import: " + epheFileName;
+            toastText = "Failed to import: " + epheFileName;
 
             try (InputStream epheIn = contentResolver.openInputStream(uri)) {
                 File assetFileDest = new File(assetsDest, epheFileName);
 
+                activity.runOnUiThread(() -> {
+                    sout.append("\nFile destination: ").append(assetFileDest);
+                    sout.append("\nResolved file name: ").append(epheFileName);
+                    cliOutput.setText(sout.toString());
+                });
+
                 if (assetFileDest.isFile()) {
-                    toastText = "ALREADY imported: " + epheFileName;
+                    toastText = "Already imported: " + epheFileName;
                 } else {
                     OutputStream out = new FileOutputStream(assetFileDest);
+
+                    activity.runOnUiThread(() -> {
+                        sout.append("\nThe file is being copied ...");
+                        cliOutput.setText(sout.toString());
+                    });
+
                     IOUtils.copyLarge(epheIn, out);
                     IOUtils.closeQuietly(epheIn);
                     IOUtils.closeQuietly(out);
-                    toastText = "IMPORTED: " + epheFileName;
+                    toastText = "Imported: " + epheFileName;
                 }
             } catch (Exception ex) {
-                Log.e(SWE_CLI, "FAILED to import: " + epheFileName, ex);
-                toastText = "FAILED to import: " + ex.getMessage();
+                Log.e(SWE_CLI, "Failed to import: " + epheFileName, ex);
+                toastText = "Failed to import: " + ex.getMessage();
             }
 
             return null;
@@ -236,7 +253,12 @@ public class CliFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void unused) {
-            Toast.makeText(config.getContext(), toastText, LENGTH_LONG).show();
+            config.getActivity().runOnUiThread(() -> {
+                sout.append('\n').append(toastText);
+                cliOutput.setText(sout.toString());
+            });
+
+            Toast.makeText(config.getActivity(), toastText, LENGTH_LONG).show();
         }
 
         private static String resolveFileName(Uri uri, ContentResolver contentResolver) {
