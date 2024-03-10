@@ -1,6 +1,7 @@
-# swe-android-cli
+# swe-android-cli (SwissEph CLI)
+https://play.google.com/store/apps/details?id=swisseph.cli
 
-swe-android-cli demonstrates the use of JNI interface against:
+swe-android-cli allows to test Android SE library using reference test utility:
 - https://github.com/aloistr/swisseph/blob/master/swetest.c
 
 # Swiss Ephemeris License
