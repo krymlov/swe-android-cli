@@ -49,5 +49,5 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 
-    implementation(platform('org.jetbrains.kotlin:kotlin-bom:2.1.0'))
+    implementation(platform('org.jetbrains.kotlin:kotlin-bom:2.1.10'))
 }
