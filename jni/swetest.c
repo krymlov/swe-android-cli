@@ -751,6 +751,7 @@ static int gregflag = SE_GREG_CAL;
 static AS_BOOL gregflag_auto = TRUE;
 static int diff_mode = 0;
 static AS_BOOL use_dms = FALSE;
+static AS_BOOL has_n = FALSE;
 static AS_BOOL universal_time = FALSE;
 static AS_BOOL universal_time_utc = FALSE;
 static int32 round_flag = 0;
@@ -836,6 +837,7 @@ void swe_test_init() {
     gregflag_auto = TRUE;
     diff_mode = 0;
     use_dms = FALSE;
+	has_n = FALSE;
     universal_time = FALSE;
     universal_time_utc = FALSE;
     round_flag = 0;
@@ -1224,6 +1226,7 @@ int swe_test_main(int argc, char *argv[])
       inut = TRUE;
     } else if (strncmp(argv[i], "-n", 2) == 0) {
       nstep = atoi(argv[i]+2);
+      has_n = TRUE;
       if (nstep == 0)
 	nstep = 20;
     } else if (strncmp(argv[i], "-i", 2) == 0) {
@@ -1346,6 +1349,8 @@ int swe_test_main(int argc, char *argv[])
     //t += 0.0000000001;
     thour = t;
   }
+  // if (! with_header && ! has_n)
+  //  with_header = TRUE;
 #if HPUNIX
   gethostname (hostname, 80);
   if (strstr(hostname, "as10") != NULL) 
@@ -1506,6 +1511,7 @@ int swe_test_main(int argc, char *argv[])
       } else {
 	tjd = swe_julday(jyear,jmon,jday,jut,gregflag);        
 	tjd += thour / 24.0;
+	jut = thour;
       }
     }
     if (special_event > 0) {
@@ -2362,7 +2368,7 @@ static int print_line(int mode, AS_BOOL is_first, int sid_mode)
 	      case 'r':   /* speed! */
 		if (is_label) { JNI_PRINTF("AU/day"); break; }
 		if (output_extra_prec) {
-		  JNI_PRINTF("%# 16.14f", x[5]);
+		  JNI_PRINTF("%# 18.16f", x[5]);
 		} else {
 		  JNI_PRINTF("%# 14.9f", x[5]);
 		}
@@ -2495,7 +2501,7 @@ static int print_line(int mode, AS_BOOL is_first, int sid_mode)
     case 'R':
 	if (is_label) { JNI_PRINTF("distAU   "); break; }
 	if (output_extra_prec) {
-	  JNI_PRINTF("%# 16.14f", x[2]);
+	  JNI_PRINTF("%# 18.16f", x[2]);
 	} else {
 	  JNI_PRINTF("%# 14.9f", x[2]);
 	}
@@ -3317,12 +3323,16 @@ ERR) {
       char stim[80];
       int iflg = 0; 
       char cal = gregflag ? 'g' : 'j';
+      static int lcount = 0;
+      lcount++;
       strcpy(stim, hms(jut,BIT_LZEROES));
       format_lon_lat(slon, slat, geopos_max[0], geopos_max[1]);
       while (*stim == ' ') our_strcpy(stim, stim + 1);
       if (*stim == '0') our_strcpy(stim, stim + 1);
       sprintf(snat, "Lunar Eclipse %s,%s,e,%d,%d,%d,%s,h0e,%cnu,%d,Moon Zenith location,,%s,%s,u,0,0,0", saros, styp, jday, jmon, jyear, stim, cal, iflg, slon, slat);
-      sprintf(sout, "<a href='https://www.astro.com/cgi/chart.cgi?muasp=1;nhor=1;act=chmnat;nd1=%s;rs=1;iseclipse=1' target='eclipse'>chart link</a>\n\n", snat);
+      sprintf(sout, "<a id='swepop%dl' href='/cgi/chart.cgi?muasp=1;nhor=1;act=chmnat;nd1=%s;rs=1;iseclipse=1' target='eclipse'>chart popup</a>", lcount, snat);
+      do_printf(sout);
+      sprintf(sout, " <a href='/cgi/chart.cgi?muasp=1;nhor=1;act=chmnat;nd1=%s;rs=1;iseclipse=1' target='eclipse'>chart link</a>\n\n", snat);
       do_printf(sout);
     }
   }
@@ -3333,7 +3343,7 @@ ERR) {
 static int32 call_solar_eclipse(double t_ut, int32 whicheph, int32 special_mode, double *geopos, char *serr)
 {
   int i, ii, retc = OK, eclflag, ecl_type = 0;
-  double dt, tret[30], attr[30], geopos_max[3];
+  double dt, tret[30], attr[30], geopos_max[10];
   char slon[8], slat[8], saros[20];
   char s1[AS_MAXCH], s2[AS_MAXCH], sout_short[AS_MAXCH + LEN_SOUT], *styp = "none", *sgj;
   AS_BOOL has_found = FALSE;
@@ -3542,12 +3552,16 @@ attr, direction_flag, serr)) == ERR) {
 	char stim[80];
 	int iflg = 0; // NAT_IFLG_UNKNOWN_TIME;
 	char cal = gregflag ? 'g' : 'j';
+	static int scount = 0;
+	scount++;
 	format_lon_lat(slon, slat, geopos_max[0], geopos_max[1]);
 	strcpy(stim, hms(jut,BIT_LZEROES));
 	while (*stim == ' ') our_strcpy(stim, stim + 1);
 	if (*stim == '0') our_strcpy(stim, stim + 1);
 	sprintf(snat, "Solar Eclipse %s,%s,e,%d,%d,%d,%s,h0e,%cnu,%d,Location of Maximum,,%s,%s,u,0,0,0", saros, styp, jday, jmon, jyear, stim, cal, iflg, slon, slat);
-	sprintf(sout, "<a href='https://www.astro.com/cgi/chart.cgi?muasp=1;nhor=1;act=chmnat;nd1=%s;rs=1;iseclipse=1;topo=1' target='eclipse'>chart link</a>\n\n", snat);
+	sprintf(sout, "<a id='swepop%ds' href='/cgi/chart.cgi?muasp=1;nhor=1;act=chmnat;nd1=%s;rs=1;iseclipse=1;topo=1' target='eclipse'>chart popup</a>", scount, snat);
+	do_printf(sout);
+	sprintf(sout, " <a href='/cgi/chart.cgi?muasp=1;nhor=1;act=chmnat;nd1=%s;rs=1;iseclipse=1;topo=1' target='eclipse'>chart link</a>\n\n", snat);
 	do_printf(sout);
       }
     }
