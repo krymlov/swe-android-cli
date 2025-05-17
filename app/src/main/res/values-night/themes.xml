@@ -1,5 +1,5 @@
 <resources>
-    <style name="Theme.Swisseph" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.Swisseph" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <item name="colorPrimary">@color/Shani</item>
     </style>
 </resources>
