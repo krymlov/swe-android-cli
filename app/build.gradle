@@ -8,8 +8,8 @@ android {
 
     defaultConfig {
         minSdk 26
-        targetSdk 35
-        versionCode 12
+        targetSdk 36
+        versionCode 13
         versionName "2.10.03"
         applicationId "swisseph.cli"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -23,8 +23,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     buildFeatures {
