@@ -1,5 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Swisseph" parent="Theme.AppCompat.DayNight.DarkActionBar">
-        <item name="colorPrimary">@color/Shani</item>
-    </style>
+    <style name="AppTheme" parent="AppTheme.Main" />
 </resources>
