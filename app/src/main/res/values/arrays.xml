@@ -3,6 +3,7 @@
 
     <string-array name="sweTestCommands">
         <item>@string/list_ephemeris_files</item>
+        <item>obama  -b5.8.1961</item>
         <item>swetest -testaa95</item>
         <item>swetest -testaa96</item>
         <item>swetest -testaa97</item>

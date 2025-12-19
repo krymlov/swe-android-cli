@@ -23,4 +23,6 @@ public final class SwissephTest {
     }
 
     public static native int swe_test_main(String args, StringBuilder sout);
+
+    public static native int obama_test_main(String args, StringBuilder sout);
 }

@@ -8,6 +8,7 @@ import static org.swisseph.appui.cli.Ephemeris.jpl;
 import static org.swisseph.appui.cli.Ephemeris.moshier;
 import static org.swisseph.appui.cli.Ephemeris.swiss;
 import static swisseph.AppConfig.EPHE_PATH;
+import static swisseph.SwissephTest.obama_test_main;
 import static swisseph.SwissephTest.swe_test_main;
 
 import android.app.Activity;
@@ -106,6 +107,11 @@ public class CliFragment extends Fragment {
         StringBuilder args = new StringBuilder(command);
         StringBuilder sout = new StringBuilder();
         File epheFolder = config.appEpheFolder();
+
+        if (command.contains("obama")) {
+            obama_test_main(args.toString(), sout);
+            return sout;
+        }
 
         if (!command.contains("-edir")) {
             args.append(" ").append(ephemerisOption.option);

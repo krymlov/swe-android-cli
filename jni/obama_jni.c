@@ -1,11 +1,11 @@
 /*
  * Author    Yura Krymlov
- * Created   2024-02
+ * Created   2025-12
  * Version   2.10.03
  */
  
 #include "swephexp.h"
-#include "swetest_jni.h"
+#include "obama_jni.h"
 //#include <android/log.h>
 
 #define GET_STRING_UTF_CHARS(IS_COPY, JSTRING, CCSTRING)\
@@ -20,7 +20,7 @@
     if (NULL == CCSTRING) *CHARS = '\0';         \
     else strcpy(CHARS, CCSTRING);
 
-void addToBuilder1(JNIEnv *env, char *chArray, jobject builder) {
+void addToBuilder2(JNIEnv *env, char *chArray, jobject builder) {
     if (NULL == builder) return;
 
     // Obtain the Java StringBuilder class handle
@@ -40,13 +40,13 @@ void addToBuilder1(JNIEnv *env, char *chArray, jobject builder) {
 }
 
 
-char SWE_TMP[1024] = "";
-char SWE_OUT[1024 * 1024] = "";
+char SWE_OBAMA_TMP[1024] = "";
+char SWE_OBAMA_OUT[1024 * 1024] = "";
 
 //#define JNI_LOG(...) __android_log_print(ANDROID_LOG_INFO,"SWE-TEST",__VA_ARGS__)
 
 
-JNIEXPORT jint JNICALL Java_swisseph_SwissephTest_swe_1test_1main(JNIEnv *env, jclass swetest, jstring jargs, jobject sout) {
+JNIEXPORT jint JNICALL Java_swisseph_SwissephTest_obama_1test_1main(JNIEnv *env, jclass swetest, jstring jargs, jobject sout) {
 	GET_STRING_UTF_CHARS(isCopy, jargs, cargs)
 	
 	//JNI_LOG("%s", cargs);
@@ -66,18 +66,18 @@ JNIEXPORT jint JNICALL Java_swisseph_SwissephTest_swe_1test_1main(JNIEnv *env, j
 	argv = realloc(argv, sizeof (char*) * (n_spaces+1));
 	argv[n_spaces] = 0;
 	
-	memset(SWE_TMP, 0, sizeof(SWE_TMP));
-	memset(SWE_OUT, 0, sizeof(SWE_OUT));
+	memset(SWE_OBAMA_TMP, 0, sizeof(SWE_OBAMA_TMP));
+	memset(SWE_OBAMA_OUT, 0, sizeof(SWE_OBAMA_OUT));
 	
-	int32 ret = swe_test_main(n_spaces, argv);
+	int32 ret = obama_test_main(n_spaces, argv);
 	
 	free(argv);
 	RLZ_STRING_UTF_CHARS(isCopy, jargs, cargs)
 	
-	addToBuilder1(env, SWE_OUT, sout);
-	//JNI_LOG("%s", SWE_OUT);
+	addToBuilder2(env, SWE_OBAMA_OUT, sout);
+	//JNI_LOG("%s", SWE_OBAMA_OUT);
 	
-    swe_test_init();
+    obama_test_init();
 
     return ret;
 }
