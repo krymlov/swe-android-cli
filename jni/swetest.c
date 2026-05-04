@@ -282,6 +282,8 @@ static char *infocmd4 = "\
                           and nutation 1980 (s. swephlib.h)\n\
         -testaa95\n\
         -testaa97\n\
+\n\
+     special purpose options:\n\
         -roundsec         round to seconds\n\
         -roundmin         round to minutes\n\
 	-ep		  use extra precision in output for some data\n\
@@ -720,6 +722,7 @@ static char *zod_nam[] = {"ar", "ta", "ge", "cn", "le", "vi",
 
 static char star[AS_MAXCH] = "algol", star2[AS_MAXCH];
 static char sastno[AS_MAXCH] = "433";
+static char spmoon[AS_MAXCH] = "";
 static char shyp[AS_MAXCH] = "1";
 static char *dms(double x, int32 iflag);
 static int make_ephemeris_path(char *argv0, char *ephepath);
@@ -1208,8 +1211,8 @@ int swe_test_main(int argc, char *argv[])
       sastno[AS_MAXCH-1] = '\0';
     } else if (strncmp(argv[i], "-xv", 3) == 0) {
       /* number of planetary moon */
-      strncpy(sastno, argv[i] + 3, AS_MAXCH - 1);
-      sastno[AS_MAXCH-1] = '\0';
+      strncpy(spmoon, argv[i] + 3, AS_MAXCH - 1);
+      spmoon[AS_MAXCH-1] = '\0';
     } else if (strncmp(argv[i], "-xf", 3) == 0) {
       /* name or number of fixed star */
       strncpy(star, argv[i] + 3, AS_MAXCH - 1);
@@ -1351,11 +1354,9 @@ int swe_test_main(int argc, char *argv[])
   }
   // if (! with_header && ! has_n)
   //  with_header = TRUE;
-#if HPUNIX
   gethostname (hostname, 80);
-  if (strstr(hostname, "as10") != NULL) 
-    line_limit = 1000;
-#endif
+  if (strstr(hostname, "as80") != NULL) 
+    line_limit = 2 * 36525;
 #if MSDOS
   SetConsoleOutputCP(65001);	// set console to utf-8,
   				// works only from Windows Vista upwards, not on XP.
@@ -1694,7 +1695,7 @@ int swe_test_main(int argc, char *argv[])
         else if (*psp == 's') // asteroid
           ipl = atoi(sastno) + 10000;
         else if (*psp == 'v') // planetary moon
-          ipl = atoi(sastno);
+          ipl = atoi(spmoon);
         else if (*psp == 'z') // fictitious object
           ipl = atoi(shyp) + SE_FICT_OFFSET_1;
         if (iflag & SEFLG_HELCTR) {
@@ -1731,17 +1732,27 @@ int swe_test_main(int argc, char *argv[])
 	  if (iflgret != ERR && strpbrk(fmt, "+-*/=") != NULL)
 	    iflgret = swe_pheno(te, ipl, iflag, attr, serr);
 	  swe_get_planet_name(ipl, se_pname);
-	  if (show_file_limit && ipl > SE_AST_OFFSET) {
+	  if (show_file_limit) { //  && ipl > SE_AST_OFFSET) {
 	    const char *fnam;
 	    char sbeg[40], send[40];
 	    double tfstart, tfend;
             int denum;
-	    fnam = swe_get_current_file_data(3, &tfstart, &tfend, &denum);
+	    int ifno = 3;
+	    if (ipl == SE_SUN || (ipl >= SE_MERCURY && ipl < SE_CHIRON)) {
+	      ifno = 0;
+	    } else if (ipl == SE_MOON) {
+	      ifno = 1;
+	    } else if (ipl <= SE_VESTA) {
+	      ifno = 2;
+	    }
+	    fnam = swe_get_current_file_data(ifno, &tfstart, &tfend, &denum);
 	    if (fnam != NULL) {
-	      swe_revjul(tfstart, gregflag, &jyear, &jmon, &jday, &jut);
-	      sprintf(sbeg, "%d.%02d.%04d", jday, jmon, jyear);
-	      swe_revjul(tfend, gregflag, &jyear, &jmon, &jday, &jut);
-	      sprintf(send, "%d.%02d.%04d", jday, jmon, jyear);
+	      int jy, jm, jd;
+	      double jt;
+	      swe_revjul(tfstart, gregflag, &jy, &jm, &jd, &jt);
+	      sprintf(sbeg, "%d.%02d.%04d", jd, jm, jy);
+	      swe_revjul(tfend, gregflag, &jy, &jm, &jd, &jt);
+	      sprintf(send, "%d.%02d.%04d", jd, jm, jy);
 	      JNI_PRINTF("range %s: %.1lf = %s to %.1lf = %s de=%d\n", fnam, tfstart, sbeg, tfend, send, denum);
 	      show_file_limit = FALSE;
 	    }
@@ -1788,6 +1799,7 @@ int swe_test_main(int argc, char *argv[])
                 || ipl == SE_MEAN_NODE || ipl == SE_TRUE_NODE
                 || ipl == SE_CERES || ipl == SE_PALLAS || ipl == SE_JUNO || ipl == SE_VESTA 
                 || ipl == SE_CHIRON || ipl == SE_PHOLUS || ipl == SE_CUPIDO 
+		|| (ipl > SE_FICT_OFFSET_1 && ipl <= SE_FICT_MAX)
 		|| ipl >= SE_PLMOON_OFFSET
                 || ipl >= SE_AST_OFFSET || ipl == SE_FIXSTAR
 		|| *psp == 'y')) {
@@ -1826,7 +1838,7 @@ int swe_test_main(int argc, char *argv[])
 	  }
         }
         /* equator position */
-        if (strpbrk(fmt, "aADdQmz") != NULL) {
+        if (strpbrk(fmt, "aADdQmzx") != NULL) {
           iflag2 = iflag | SEFLG_EQUATORIAL;
           if (ipl == SE_FIXSTAR) {
             iflgret = call_swe_fixstar(star, te, iflag2, xequ, serr);
@@ -1897,10 +1909,13 @@ int swe_test_main(int argc, char *argv[])
         /* ecliptic cartesian position */
         if (strpbrk(fmt, "XU") != NULL) {
           iflag2 = iflag | SEFLG_XYZ;
-          if (ipl == SE_FIXSTAR)
+          if (ipl == SE_FIXSTAR) {
             iflgret = call_swe_fixstar(star, te, iflag2, xcart, serr);
-          else
+	  } else if (do_planeto_centric) {
+	    iflgret = swe_calc_pctr(te, ipl, iplctr, iflag2, xcart, serr);
+          } else {
             iflgret = swe_calc(te, ipl, iflag2, xcart, serr);
+	  }
           if (diff_mode) {
             iflgret = swe_calc(te, ipldiff, iflag2, x2, serr);
 	    if (diff_mode == DIFF_DIFF || diff_mode == DIFF_GEOHEL) {
@@ -1916,10 +1931,13 @@ int swe_test_main(int argc, char *argv[])
         /* equator cartesian position */
         if (strpbrk(fmt, "xu") != NULL) {
           iflag2 = iflag | SEFLG_XYZ | SEFLG_EQUATORIAL;
-          if (ipl == SE_FIXSTAR)
+          if (ipl == SE_FIXSTAR) {
             iflgret = call_swe_fixstar(star, te, iflag2, xcartq, serr);
-          else
+	  } else if (do_planeto_centric) {
+	    iflgret = swe_calc_pctr(te, ipl, iplctr, iflag2, xcartq, serr);
+          } else {
             iflgret = swe_calc(te, ipl, iflag2, xcartq, serr);
+	  }
           if (diff_mode) {
             iflgret = swe_calc(te, ipldiff, iflag2, x2, serr);
 	    if (diff_mode == DIFF_DIFF || diff_mode == DIFF_GEOHEL) {
@@ -2862,7 +2880,7 @@ static int32 orbital_elements(double tjd_et, int32 ipl, int32 iflag, char *serr)
   int32 retval;
   double dret[20], jut;
   int32 jyear, jmon, jday;
-  char sdateperi[20];
+  char sdateperi[40];
   retval = swe_get_orbital_elements(tjd_et, ipl, iflag, dret, serr);
   if (retval == ERR) {
     JNI_PRINTF("%s\n", serr);
