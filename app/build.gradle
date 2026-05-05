@@ -9,18 +9,13 @@ android {
     defaultConfig {
         minSdk 26
         targetSdk 36
-        versionCode 17
+        versionCode 18
         versionName "2.10.03"
         applicationId "swisseph.cli"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
-        debug {
-            debuggable true
-            minifyEnabled false
-            shrinkResources false
-        }
         release {
             debuggable false
             minifyEnabled true
