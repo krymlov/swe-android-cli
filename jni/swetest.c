@@ -722,7 +722,7 @@ static char *zod_nam[] = {"ar", "ta", "ge", "cn", "le", "vi",
 
 static char star[AS_MAXCH] = "algol", star2[AS_MAXCH];
 static char sastno[AS_MAXCH] = "433";
-static char spmoon[AS_MAXCH] = "";
+static char spmoon[AS_MAXCH] = "9501";	// Jupiter Moon Io
 static char shyp[AS_MAXCH] = "1";
 static char *dms(double x, int32 iflag);
 static int make_ephemeris_path(char *argv0, char *ephepath);
@@ -1354,9 +1354,11 @@ int swe_test_main(int argc, char *argv[])
   }
   // if (! with_header && ! has_n)
   //  with_header = TRUE;
+#ifndef _WINDOWS
   gethostname (hostname, 80);
   if (strstr(hostname, "as80") != NULL) 
     line_limit = 2 * 36525;
+#endif
 #if MSDOS
   SetConsoleOutputCP(65001);	// set console to utf-8,
   				// works only from Windows Vista upwards, not on XP.
@@ -2304,11 +2306,15 @@ static int print_line(int mode, AS_BOOL is_first, int sid_mode)
 	break;
     case 'l':
         if (is_label) { JNI_PRINTF("%s", slon); break; }
-	if (output_extra_prec) {
-	  JNI_PRINTF("%# 11.11f", x[0]);
-	} else {
-	  JNI_PRINTF("%# 11.7f", x[0]);
-	}
+        if (round_flag & BIT_ROUND_MIN) {
+			JNI_PRINTF("%# 6.2f", x[0]);
+		} else {
+			if (output_extra_prec) {
+			  JNI_PRINTF("%# 11.11f", x[0]);
+			} else {
+			  JNI_PRINTF("%# 11.7f", x[0]);
+			}
+		}
 	break;
     case 'G':
         if (is_label) { JNI_PRINTF("housPos"); break; }
