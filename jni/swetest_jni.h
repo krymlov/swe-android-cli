@@ -8,8 +8,25 @@
 extern "C" {
 #endif
 
+#define SWE_OUT_SIZE (1024 * 1024)
+#define SWE_TMP_SIZE 1024
+
 extern char SWE_OUT[];
 extern char SWE_TMP[];
+
+/*
+ * Appends to SWE_OUT with a bounds check and stops at SWE_OUT_SIZE, leaving a
+ * "...[output truncated]" marker. A plain strcat() here is a buffer overflow: one
+ * swetest step prints about 300 bytes, so -n3600 already passes 1 MB.
+ */
+void swe_out_append(const char *text);
+
+/* forgets the buffers, called before every run */
+void swe_out_reset(void);
+
+/* swetest.c: main() renamed, plus the reset of all its static state */
+int swe_test_main(int argc, char *argv[]);
+void swe_test_init(void);
 
 JNIEXPORT jint JNICALL Java_swisseph_SwissephTest_swe_1test_1main(JNIEnv *, jclass, jstring, jobject);
 

@@ -888,7 +888,7 @@ void swe_test_init() {
     show_file_limit = FALSE;
 }
 
-#define JNI_PRINTF(...) {sprintf(SWE_TMP, __VA_ARGS__);strcat(SWE_OUT,SWE_TMP);}
+#define JNI_PRINTF(...) {snprintf(SWE_TMP, SWE_TMP_SIZE, __VA_ARGS__);swe_out_append(SWE_TMP);}
 #define JNI_EXIT(code) return code
 
 int swe_test_main(int argc, char *argv[])
@@ -4048,7 +4048,7 @@ static void do_printf(char *info)
 #ifdef _WINDOWS
   fprintf(fp, info);
 #elif __ANDROID_API__
-  strcat(SWE_OUT,info);
+  swe_out_append(info);
 #else
     fputs(info,stdout);
 #endif
