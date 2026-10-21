@@ -11,6 +11,10 @@ extern "C" {
 extern char SWE_OBAMA_OUT[];
 extern char SWE_OBAMA_TMP[];
 
+/* obama.c: main() renamed, plus the reset of its state */
+int obama_test_main(int argc, char *argv[]);
+void obama_test_init(void);
+
 JNIEXPORT jint JNICALL Java_swisseph_SwissephTest_obama_1test_1main(JNIEnv *, jclass, jstring, jobject);
 
 #ifdef __cplusplus

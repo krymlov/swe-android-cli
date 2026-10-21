@@ -73,6 +73,7 @@ static char *infocmd0 = "\n\
 \n";
 static char *infocmd1 = "\n\
   Command line options:\n\
+  Note: spaces have to be observed carefully, as given\n\
      help commands:\n\
         -?, -h  display whole info\n\
         -hcmd   display commands\n\
@@ -82,7 +83,7 @@ static char *infocmd1 = "\n\
         -hexamp  display examples\n\
         -glp  report file location of library\n\
      input time formats:\n\
-        -bDATE  begin date; e.g. -b1.1.1992 if\n\
+        -bDATE  begin date; e.g. -b31.1.1992 for 31 January 1991\n\
                 Note: the date format is day month year (European style).\n\
         -bj...  begin date as an absolute Julian day number; e.g. -bj2415020.5\n\
         -j...   same as -bj\n\
@@ -289,6 +290,11 @@ static char *infocmd4 = "\
 	-ep		  use extra precision in output for some data\n\
 	-dms              use dms instead of fractions, at some places\n\
 	-lim		  print ephemeris file range\n\
+	-astposDDD	  list named asteroids within orb of 0.5° of position DDD\n\
+	-astposDDD,orb	  list named asteroids within orb of position DDD\n\
+			  DDD is must be decimal between 0.00° and 359.99999°\n\
+			  orb must be deciaml between 0.01° and 1.0°\n\
+			  \n\
      observer position:\n\
         -hel    compute heliocentric positions\n\
         -bary   compute barycentric positions (bar. earth instead of node) \n\
@@ -740,6 +746,7 @@ static int cut_str_any(char *s, char *cutlist, char *cpos[], int nmax);
 static int32 call_swe_fixstar(char *star, double te, int32 iflag, double *x, char *serr);
 static void jd_to_time_string(double jut, char *stimeout);
 static char *our_strcpy(char *to, char *from);
+static int print_asteroids(double tjd, double dref, double orb);
 
 /* globals shared between main() and print_line() */
 static char *fmt = "PLBRS";
@@ -827,6 +834,7 @@ void swe_test_init() {
     strcpy(star, "star");
     strcpy(sastno, "433");
     strcpy(shyp, "1");
+    strcpy(spmoon, "9501");
 
     fmt = "PLBRS";
     gap = " ";
@@ -897,10 +905,8 @@ int swe_test_main(int argc, char *argv[])
   char s1[AS_MAXCH], s2[AS_MAXCH];
   char *sp, *sp2;
   char *spno;
-  char *plsel = PLSEL_D;
-#if HPUNIX
+  char plsel[AS_MAXCH];
   char hostname[80];
-#endif
   int i, j, n, iflag_f = -1, iflgt;
   int line_count, line_limit = 36525; // days in a century
   double daya;
@@ -929,6 +935,9 @@ int swe_test_main(int argc, char *argv[])
   double t2, thour = 0;
   double delt;
   double tid_acc = 0;
+  double orb = 0.5;
+  double astpos = -1;
+  strcpy(plsel, PLSEL_D);
   datm[0] = 1013.25; datm[1] = 15; datm[2] = 40; datm[3] = 0;
   dobs[0] = 0; dobs[1] = 0;
   dobs[2] = 0; dobs[3] = 0; dobs[4] = 0; dobs[5] = 0;
@@ -989,7 +998,7 @@ int swe_test_main(int argc, char *argv[])
       if ((sp = strchr(s1, ',')) != NULL) {
         aya_val0 = atof(sp+1);
       }
-      if (strstr(sp, "jdisut") != NULL) {
+      if (sp != NULL && strstr(sp, "jdisut") != NULL) {
         sid_mode |= SE_SIDBIT_USER_UT;
       }
       /*swe_set_sid_mode(sid_mode, 0, 0);*/
@@ -1083,7 +1092,7 @@ int swe_test_main(int argc, char *argv[])
         begindate = "j2450482.5";
       fmt = "PADRu";
       universal_time = FALSE;
-      plsel="3";
+      strcpy(plsel, "3");
     } else if (strncmp(argv[i], "-lmt", 4) == 0) {
       universal_time = TRUE;
       time_flag |= BIT_TIME_LMT;
@@ -1183,6 +1192,14 @@ int swe_test_main(int argc, char *argv[])
       sp = argv[i] + 4;
       if (*sp == '[') sp++;
       sscanf(sp, "%lf,%lf,%lf,%lf,%lf,%lf", &(dobs[0]), &(dobs[1]), &(dobs[2]), &(dobs[3]), &(dobs[4]), &(dobs[5]));
+    } else if (strncmp(argv[i], "-astpos", 7) == 0) {
+      double x1, x2;
+      sp = argv[i] + 7;
+      j = sscanf(sp, "%lf,%lf", &x1, &x2);
+      if (j > 0 && x1 >= 0 && x1 < 360)
+        astpos = x1;
+      if (j > 1 && x2 >= 0 && x2 <=1 )
+        orb = x2;
     } else if (strcmp(argv[i], "-orbel") == 0) {
       do_orbital_elements = TRUE;
     } else if (strcmp(argv[i], "-bwd") == 0) {
@@ -1194,16 +1211,27 @@ int swe_test_main(int argc, char *argv[])
     } else if (strncmp(argv[i], "-p", 2) == 0) {
       spno = argv[i]+2;
       switch (*spno) {
-      case 'd':
-      /*
-      case '\0':
-      case ' ':  
-      */
-	plsel = PLSEL_D; break;
-      case 'p':  plsel = PLSEL_P; break;
-      case 'h':  plsel = PLSEL_H; break;
-      case 'a':  plsel = PLSEL_A; break;
-      default:   plsel = spno;
+	case 'd': strcpy(plsel, PLSEL_D); 
+	  if (strchr(spno, 'e') != NULL)
+	    strcat(plsel, "e");	// re-append e for predefinded set 
+	  break;
+	case 'p': strcpy(plsel, PLSEL_P);
+	  if (strchr(spno, 'e') != NULL)
+	    strcat(plsel, "e");	// re-append e for predefinded set 
+	  break;
+	case 'h': strcpy(plsel, PLSEL_H);
+	  if (strchr(spno, 'e') != NULL)
+	    strcat(plsel, "e");	// re-append e for predefinded set 
+	  break;
+	case 'a': strcpy(plsel, PLSEL_A);
+	  if (strchr(spno, 'e') != NULL)
+	    strcat(plsel, "e");	// re-append e for predefinded set 
+	  break;
+	default:   
+		if (strlen(spno) >= AS_MAXCH) 
+		  *(spno + AS_MAXCH - 1) = '\0';	// cut off overlength planet list
+		strcpy(plsel,spno);
+		break;
       }
     } else if (strncmp(argv[i], "-xs", 3) == 0) {
       /* number of asteroid */
@@ -1658,6 +1686,11 @@ int swe_test_main(int argc, char *argv[])
       }
       if (with_header && !with_header_always)
         with_header = FALSE;
+      if (astpos >= 0) {
+	print_asteroids(tjd, astpos, orb);
+	swe_close();
+	return OK;
+      }
       if (do_ayanamsa) {
 	if (swe_get_ayanamsa_ex(te, iflag, &daya, serr) == ERR) {
 	  JNI_PRINTF("   error in swe_get_ayanamsa_ex(): %s\n", serr);
@@ -4209,3 +4242,58 @@ static char *our_strcpy(char *to, char *from)
   }
   return to;
 }
+
+#if TRUE
+// this function should move to swephlib.c in next release
+int swe_get_named_ast_list(int amax, int *iarr, char*serr)
+{
+  char si[AS_MAXCH], *sp;
+  FILE *fp = swi_fopen(-1, SE_ASTNAMFILE, swed.ephepath, serr);
+  int nast = 0;
+  if (fp == NULL) return ERR;
+  while (fgets(si, AS_MAXCH, fp) != NULL) {
+    sp = si + 8;
+    if (! isdigit(*sp))  {	// named asteroids do not start with digit
+      iarr[nast] = atoi(si);
+      nast++;
+    }
+    if (nast == amax) break;
+  }
+  fclose(fp);
+  return nast;
+}
+int print_asteroids(double tjd, double dref, double orb)
+{
+  int i, rc, nast, amax = 30000;
+  static int arr[30000];	// JNI port: static, not a 120 KB VLA on the thread stack
+  char serr[AS_MAXCH];
+  char si[AS_MAXCH];
+  nast = swe_get_named_ast_list(amax, arr, serr);
+  if (nast == ERR) {
+    JNI_PRINTF(" error in swe_get_named_ast_list(): %s\n", serr);
+    return ERR;
+  }
+  strcpy(si,  dms(dref, BIT_ZODIAC|BIT_ROUND_SEC));
+  JNI_PRINTF("\nAsteroids near %.6lf° (%s) within orb %.3lf°\n\t(out of %d named asteroids)\n\n", dref, si, orb, nast);
+  for (i = 0; i < nast; i++) {
+    int ipl = arr[i] + SE_AST_OFFSET;
+    double xx[6];
+    rc = swe_calc(tjd, ipl, 0, &xx[0], serr);
+    if (rc >= 0 && dref >= 0) {
+      double d = swe_difdeg2n(dref, xx[0]);
+      char pname[AS_MAXCH];
+      if (fabs(d) <= orb) {
+	char m = ' ';
+	if (d < 0)  {
+	  d = -d;
+	  m = '-';
+	}
+        swe_get_planet_name(ipl, pname);
+	// put orb in front for easy sorting
+	JNI_PRINTF("%.3f%c\t%d\t%-20s\n", d, m, arr[i], pname);
+      }
+    }
+  }
+  return OK;
+}
+#endif
