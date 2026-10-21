@@ -27,7 +27,7 @@ Android-застосунок із JNI-портом `swetest` і `obama` (мод�
   у swisseph-2026 — 17 команд в одному процесі проти `swetest.exe`; останній прогін (21.10)
   `differ: 0`.
 
-## Не закомічено (21.10)
+## Опції збірки (21.10, коміт `036c470`)
 
 * `jni/Application.mk`: `APP_PLATFORM := android-24` (було 21) — та сама причина, що в
   swe-android-lib: на 32-бітних ABI `fseeko`/`ftello` за API 21 були неявними оголошеннями й
@@ -36,7 +36,6 @@ Android-застосунок із JNI-портом `swetest` і `obama` (мод�
 * `jni/Android.mk`: додано `-O2` (armeabi-v7a, thumb, отримувала типове `-Oz`), прибрано
   `-Wno-error=implicit-function-declaration` і `-ffunction-sections -fdata-sections` з
   `LOCAL_LDFLAGS`.
-* `.so` перезбирає й комітить користувач.
 
 ## Огляд JNI-обгорток (21.10) — правки ще не внесено
 

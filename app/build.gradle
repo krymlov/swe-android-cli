@@ -9,7 +9,7 @@ android {
     defaultConfig {
         minSdk 26
         targetSdk 36
-        versionCode 18
+        versionCode 19
         versionName "2.10.03"
         applicationId "swisseph.cli"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
